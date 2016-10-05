@@ -7,8 +7,9 @@
 //Construct a knot from an array of numbers
 Knot::Knot(int extGauss[], int knotLength) {
     //Create new blank crossing to begin with
+
+    // SUGGESTION: absolute value? abs(extGauss[0]) is cleaner
     start=new Crossing((extGauss[0]>0) ? extGauss[0] : -(extGauss[0]));
-    
     //Point to that blank crossing
     CrossingPointer nPtr=start;
     
@@ -27,6 +28,8 @@ Knot::Knot(int extGauss[], int knotLength) {
     //nPtr is now at start again
     //The knot now has all next and prev data, and nums. Still no neg, sign, or handedness
     
+    // SUGGESTION: A high level description of what happens here would be
+    // helpful. Maybe this deserves its own function?
     //Here we get neg data and mySize
     CrossingPointer nPtr2; //Reminder that nPtr is still at start and we use that here too
     for (int idx=0; idx<knotLength; idx++) {
@@ -46,6 +49,8 @@ Knot::Knot(int extGauss[], int knotLength) {
     }
     mySize=mySize/2;
     
+    // SUGGESTION: A high level description of what happens here would be
+    // helpful. Maybe this deserves its own function?
     //And here we get sign and handedness data
     nPtr=start;
     for (int idx=0; idx<knotLength; idx++) {
@@ -61,6 +66,8 @@ Knot::Knot(int extGauss[], int knotLength) {
             }
             else if (abs(extGauss[idx])==abs(extGauss[idx2])) {
                 if (idx<idx2) {
+                    // SUGGESTION: a function to get the sign would clean this
+                    // up.
                     nPtr->sign  =abs(extGauss[idx])/extGauss[idx];
                     nPtr2->sign =-(abs(extGauss[idx])/extGauss[idx]);
                     nPtr->handedness  = abs(extGauss[idx2])/extGauss[idx2];
