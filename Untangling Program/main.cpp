@@ -6,9 +6,7 @@
 //  Copyright © 2016 Dana Foley. All rights reserved.
 //
 
-#include <iostream>
-#include <string>
-#include <sstream>
+
 #include "Untangle.h"
 
 
@@ -50,7 +48,7 @@ int main() {
     int knotLength=0;
     
     int * extGauss = getInput(knotLength);
-    
+
 //    for (int idx=0; idx<knotLength; idx++)
 //        cout << extGauss[idx] << " ";
 //    cout << endl;

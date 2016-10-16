@@ -1,7 +1,8 @@
 #ifndef KNOT
 #define KNOT
 
-#include <iostream>
+#include "Utilities.h"
+
 using namespace std;
 
 //----- Add typdef statement here
@@ -9,13 +10,52 @@ using namespace std;
 class Knot
 {
 
-/*
- * SUGGESTION: The header file for your class is where you look to see what the
- * interface (the public members) of the class is. So typically the public
- * stuff goes above the private stuff.
- */
+public:
+    
+    //Empty Knot object constructor
+    //Size 0, no crossings initialized
+    inline Knot():
+    	start(nullptr),
+    	mySize(0)
+    {}
+    
+    //Knot constructor from an Extended Gauss Code list
+    //knotLength is the length of extGauss 
+    	//and must be determined prior to calling this constructor
+    //This is the constructor used by main
+    	//to first set up the knot to be worked on
+    Knot(int extGauss[],int knotLength);
+    
+    //Copy constructor
+    Knot(const Knot &origKnot);
+    
+    //Return the size of the knot.
+    //If the knot has n crossing objects in it,
+    	//mySize will be n/2, since each crossing object
+    	//refers to only one half of the overall crossing
+    inline int size() const {return mySize;}
+    
+    //Prints the knot as a readable list of numbers (Ext Gauss Code)
+    void display(ostream & out) const;
+    
+    //Destructor
+    //Deletes all crossing objects
+    ~Knot();
+    
+    //Knot assignment operator, similar to copy constructor
+    Knot & operator=(const Knot &origKnot);
+    
+    
+    //------------------------------------
+    
+    //Tries to perform Reduction Move 1, returns true/false on success/failure
+    bool rm1();
+    
+    //Tries to perform Reduction Move 2, returns true/false on success/failure
+    bool rm2();
+    
+    
 private:
-
     /*
      * SUGGESTION: Even though you're only going to use the Crossing class
      * within the Knot class, I think it's cleaner to put it in its own h/cpp
@@ -34,26 +74,17 @@ private:
         Crossing * prev;
         Crossing * neg;
         
-        /*
-         * SUGGESTION: You can use an initializer list rather than
-         * assignments like so:
-         *   Crossing(int numValue) 
-         *     : num(numValue),
-         *       sign(0),
-         *       ...
-         *       neg(nullptr)
-         *   {}
-         *
-         * Probably cleaner to put this in the implementation file as well.   
-         */
-        Crossing(int numValue) {num=numValue; sign=0; handedness=0; next=nullptr; prev=nullptr; neg=nullptr;}
+        Crossing(int numValue):
+        	num(numValue), 
+        	sign(0), 
+        	handedness(0), 
+        	next(nullptr), 
+        	prev(nullptr), 
+        	neg(nullptr)
+        {}
         
-        Crossing(Crossing const &origCrossing);
+        Crossing(const Crossing &origCrossing);
         
-        /*
-         * SUGGESTION: "Crossing const" and "const Crossing" accomplish the
-         * same thing, but it's good to pick one direction and stick with it.
-         */ 
 
         Crossing & operator=(const Crossing &origCrossing);
         
@@ -64,61 +95,23 @@ private:
         
     };
     
-    
-    
-public:
-    /*
-     * SUGGESTION: The public member functions are the interface to the class,
-     * and so they should be well documented in the header.
-     */
-
-    // SUGGESTION: I think Crossing * is clearer and takes up less space
-    // than CrossingPointer
-    typedef Crossing * CrossingPointer;
-    
-    
-    // SUGGESTION: This can also be an initializer list
-    inline Knot() {start=nullptr; mySize=0;}
-    
-    
-    Knot(int extGauss[],int knotLength);
-    
-    
-    Knot(Knot const &origKnot);
-    
-    
-    inline int size() const {return mySize;}
-    
-    
-    void display(ostream & out) const;
-
-    
-    // SUGGESTION: Does insert and erase need to be public?
+    //Insert a crossing at a specified index. Not currently used
     void insert(int index, int numValue);
     
-
+    //Removes a crossing from a given index, being sure to reconnect the knot structure around it
     void erase(int index);
-
     
-    void erase(CrossingPointer crossingA);
+    //Removes a given crossing based on a pointer to it
+    void erase(Crossing * crossingA);
     
+    //Starting crossing of the knot
+    //This is somewhat arbitrary
+    //but we need one pointer to be our reference to the knot
+    Crossing * start;
     
-    ~Knot();
-    
-    
-    Knot & operator=(const Knot &origKnot);
-    
-    
-    //------------------------------------
-    
-    bool rm1();
-    
-    bool rm2();
-    
-    
-    // SUGGESTION: Do these need to be public?
-    CrossingPointer start;
+    //Size of the knot. A knot with n crossings will have mySize of n/2
     int mySize;
+
     
 };
 

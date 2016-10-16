@@ -5,7 +5,7 @@
 
 
 void Untangle(Knot &knot) {
-    while (knot.mySize!=0) {
+    while (knot.size()!=0) {
         if (knot.rm2()) {
             cout << "RM2 performed: " << knot << endl;
             continue;

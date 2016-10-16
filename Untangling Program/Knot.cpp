@@ -8,15 +8,14 @@
 Knot::Knot(int extGauss[], int knotLength) {
     //Create new blank crossing to begin with
 
-    // SUGGESTION: absolute value? abs(extGauss[0]) is cleaner
-    start=new Crossing((extGauss[0]>0) ? extGauss[0] : -(extGauss[0]));
+    start=new Crossing(abs(extGauss[0]));
     //Point to that blank crossing
-    CrossingPointer nPtr=start;
+    Crossing * nPtr=start;
     
     //Establish num, next, and prev for all crossings
     //and link them together
     for (int idx=1; idx<knotLength; idx++) {
-        nPtr->next=new Crossing((extGauss[idx]>0) ? extGauss[idx] : -(extGauss[idx]));
+        nPtr->next=new Crossing(abs(extGauss[idx]));
         nPtr->next->prev=nPtr;
         nPtr=nPtr->next;
     }
@@ -28,14 +27,15 @@ Knot::Knot(int extGauss[], int knotLength) {
     //nPtr is now at start again
     //The knot now has all next and prev data, and nums. Still no neg, sign, or handedness
     
-    // SUGGESTION: A high level description of what happens here would be
-    // helpful. Maybe this deserves its own function?
+
     //Here we get neg data and mySize
-    CrossingPointer nPtr2; //Reminder that nPtr is still at start and we use that here too
+    //For each crossing, we search through to find it's corresponding
+    	//negative crossing, and point them at each other
+    Crossing * nPtr2; //Reminder that nPtr is still at start and we use that here too
     for (int idx=0; idx<knotLength; idx++) {
         nPtr2=start;
         for (int idx2=0; idx2<knotLength; idx2++) {
-            if (idx==idx2)
+            if (idx==idx2) //Don't point the neg of a crossing to itself
                 continue;
             if (nPtr->num==nPtr2->num) {
                 nPtr->neg=nPtr2;
@@ -49,16 +49,23 @@ Knot::Knot(int extGauss[], int knotLength) {
     }
     mySize=mySize/2;
     
-    // SUGGESTION: A high level description of what happens here would be
-    // helpful. Maybe this deserves its own function?
+    
     //And here we get sign and handedness data
+    //The sign of a crossing is determined by 
+    	//the pos/neg sign of the first instance of a number in an extended Gauss Code list
+    //Similarly, the handedness is determined by
+    	//the pos/neg sign of the second instance
     nPtr=start;
     for (int idx=0; idx<knotLength; idx++) {
         nPtr2=start;
+
+        //If for some reason the sign is already established, move on
         if (nPtr->sign!=0) {
             nPtr=nPtr->next;
             continue;
         }
+
+
         for (int idx2=0; idx2<knotLength; idx2++) {
             if (idx==idx2) {
                 nPtr2=nPtr2->next;
@@ -66,19 +73,17 @@ Knot::Knot(int extGauss[], int knotLength) {
             }
             else if (abs(extGauss[idx])==abs(extGauss[idx2])) {
                 if (idx<idx2) {
-                    // SUGGESTION: a function to get the sign would clean this
-                    // up.
-                    nPtr->sign  =abs(extGauss[idx])/extGauss[idx];
-                    nPtr2->sign =-(abs(extGauss[idx])/extGauss[idx]);
-                    nPtr->handedness  = abs(extGauss[idx2])/extGauss[idx2];
-                    nPtr2->handedness = abs(extGauss[idx2])/extGauss[idx2];
+                    nPtr->sign  =getSign(extGauss[idx]);
+                    nPtr2->sign =-getSign(extGauss[idx]);
+                    nPtr->handedness  = getSign(extGauss[idx2]);
+                    nPtr2->handedness = getSign(extGauss[idx2]);
                     break;
                 }
-                else /* (idx2<idx) */ {
-                    nPtr->sign  =-abs(extGauss[idx2])/extGauss[idx2];
-                    nPtr2->sign =abs(extGauss[idx2])/extGauss[idx2];
-                    nPtr->handedness  = abs(extGauss[idx])/extGauss[idx];
-                    nPtr2->handedness = abs(extGauss[idx])/extGauss[idx];
+                else /* if (idx2<idx) */ {
+                    nPtr->sign  =-getSign(extGauss[idx2]);
+                    nPtr2->sign =getSign(extGauss[idx2]);
+                    nPtr->handedness  = getSign(extGauss[idx]);
+                    nPtr2->handedness = getSign(extGauss[idx]);
                     break;
                 }
             }
@@ -88,15 +93,15 @@ Knot::Knot(int extGauss[], int knotLength) {
     }
 }
 
-Knot::Knot(Knot const &origKnot) {
+Knot::Knot(const Knot &origKnot) {
     if (origKnot.mySize==0) start= nullptr;
     else start = new Crossing(0);
     
     mySize=origKnot.mySize;
     
     if (mySize!=0) {
-        CrossingPointer nPtr = start;
-        CrossingPointer origPtr = origKnot.start;
+        Crossing * nPtr = start;
+        Crossing * origPtr = origKnot.start;
         for (int numTimes=0; numTimes<mySize; numTimes++) {
             
             //overloaded Crossing = operator
@@ -114,7 +119,7 @@ Knot::Knot(Knot const &origKnot) {
 Knot::~Knot() {
     if (start!=nullptr) {
         start->prev->next=nullptr;
-        CrossingPointer temp = start;
+        Crossing * temp = start;
         while (temp!= nullptr) {
             start=start->next;
             delete temp;
@@ -126,8 +131,8 @@ Knot::~Knot() {
 }
 
 void Knot::display(ostream & out) const{
-    CrossingPointer ptr = start;
-    out <<"[";
+    Crossing * ptr = start;
+    out << "[";
     
     if (ptr!=nullptr) {
         do {
@@ -146,7 +151,7 @@ ostream& operator<<(ostream& out, const Knot &myKnot) {
 
 
 void Knot::insert(int index, int numValue) {
-    CrossingPointer nPtr;
+    Crossing * nPtr;
     nPtr = new Crossing(numValue);
     
     if (index==0) {
@@ -154,7 +159,7 @@ void Knot::insert(int index, int numValue) {
         start=nPtr;
         mySize++;
     }
-    else if(index>0 && index<=mySize) {
+    else if(index>0 and index<=mySize) {
         Crossing * predPtr;
         predPtr = new(nothrow) Crossing(0);
         predPtr->next=start;
@@ -170,7 +175,7 @@ void Knot::insert(int index, int numValue) {
 }
 
 void Knot::erase(int index) {
-    CrossingPointer ptrA = start;
+    Crossing * ptrA = start;
     
     for (int i=0; i<index; i++)
         ptrA=ptrA->next;
@@ -179,8 +184,8 @@ void Knot::erase(int index) {
     
 }
 
-void Knot::erase(CrossingPointer ptrA) {
-    CrossingPointer ptrB=ptrA->neg;
+void Knot::erase(Crossing * ptrA) {
+    Crossing * ptrB=ptrA->neg;
     
     if (mySize==1) {
         delete ptrA;
@@ -242,8 +247,8 @@ Knot & Knot::operator=(const Knot &origKnot) {
         mySize=origKnot.mySize;
         
         if (mySize!=0) {
-            CrossingPointer nPtr = start;
-            CrossingPointer origPtr = origKnot.start;
+            Crossing * nPtr = start;
+            Crossing * origPtr = origKnot.start;
             for (int numTimes=0; numTimes<mySize; numTimes++) {
                 nPtr->num = origPtr->num;
                 if (origPtr->next!=0)
@@ -258,7 +263,7 @@ Knot & Knot::operator=(const Knot &origKnot) {
 }
 
 
-Knot::Crossing::Crossing(Crossing const & origCrossing) {
+Knot::Crossing::Crossing(const Crossing & origCrossing) {
     num=origCrossing.num;
     sign=origCrossing.sign;
     handedness=origCrossing.handedness;
@@ -285,7 +290,7 @@ Knot::Crossing & Knot::Crossing::operator=(const Crossing &origCrossing) {
 
 
 bool Knot::rm1() {
-    CrossingPointer ptrA=start;
+    Crossing * ptrA=start;
     
     do {
         if (ptrA->num==ptrA->next->num) {
@@ -300,8 +305,8 @@ bool Knot::rm1() {
 
 
 bool Knot::rm2() {
-    CrossingPointer ptrA=start;
-    CrossingPointer ptrB;
+    Crossing * ptrA=start;
+    Crossing * ptrB;
     
     do {
         ptrB=ptrA->next;
