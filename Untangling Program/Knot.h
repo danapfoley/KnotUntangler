@@ -1,9 +1,9 @@
 #ifndef KNOT
 #define KNOT
 
-#include "Utilities.h"
+#include "Naming.h"
 
-using namespace std;
+
 
 //----- Add typdef statement here
 
@@ -26,16 +26,21 @@ public:
     	//to first set up the knot to be worked on
     Knot(int extGauss[],int knotLength);
     
-    //Copy constructor
-    Knot(const Knot &origKnot);
-    
     //Return the size of the knot.
     //If the knot has n crossing objects in it,
     	//mySize will be n/2, since each crossing object
     	//refers to only one half of the overall crossing
     inline int size() const {return mySize;}
     
-    //Prints the knot as a readable list of numbers (Ext Gauss Code)
+    //Returns a string of the non-ext Gauss Code list
+    string toGaussString() const;
+    
+    //Returns a string of the Extended Gauss Code list
+    string toExtGaussString() const;
+    
+    int * toArray() const;
+    
+    //Prints the knot as a readable list of numbers (non-ext Gauss Code)
     void display(ostream & out) const;
     
     //Destructor
@@ -53,6 +58,13 @@ public:
     
     //Tries to perform Reduction Move 2, returns true/false on success/failure
     bool rm2();
+    
+    //Knot tm1();
+    
+    void tm2();
+    
+    //Gets length of the longest continuous over/underpass segment
+    int getLongestStrandLength();
     
     
 private:
@@ -94,6 +106,7 @@ private:
         
         
     };
+    
     
     //Insert a crossing at a specified index. Not currently used
     void insert(int index, int numValue);

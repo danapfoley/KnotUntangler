@@ -93,29 +93,6 @@ Knot::Knot(int extGauss[], int knotLength) {
     }
 }
 
-Knot::Knot(const Knot &origKnot) {
-    if (origKnot.mySize==0) start= nullptr;
-    else start = new Crossing(0);
-    
-    mySize=origKnot.mySize;
-    
-    if (mySize!=0) {
-        Crossing * nPtr = start;
-        Crossing * origPtr = origKnot.start;
-        for (int numTimes=0; numTimes<mySize; numTimes++) {
-            
-            //overloaded Crossing = operator
-            *nPtr=*origPtr;
-            
-            if (origPtr->next!=nullptr) {
-                nPtr->next= new Crossing(0);
-            }
-            nPtr=nPtr->next;
-            origPtr=origPtr->next;
-        }
-    }
-}
-
 Knot::~Knot() {
     if (start!=nullptr) {
         start->prev->next=nullptr;
@@ -130,18 +107,73 @@ Knot::~Knot() {
     else cout << "Knot not destroyed" << endl;
 }
 
-void Knot::display(ostream & out) const{
+string Knot::toGaussString() const{
     Crossing * ptr = start;
-    out << "[";
+    string outputString = "[";
     
     if (ptr!=nullptr) {
         do {
-            out << (ptr->num)*(ptr->sign) << ( (ptr->next!=start) ? (", ") : (""));
+            outputString += to_string((ptr->num)*(ptr->sign));
+            outputString += (ptr->next!=start) ? (", ") : ("");
             ptr = ptr->next;
         } while (ptr!=start);
     }
     
-    out << "]";
+    outputString += "]";
+    
+    return outputString;
+}
+
+string Knot::toExtGaussString() const{
+    Crossing * ptrA = start;
+    Crossing * ptrB;
+    bool secondInst = false;
+    string outputString = "[";
+    
+    if (ptrA!=nullptr) {
+        do {
+            
+            //Trace backward and see if we're on the second inst of a num
+            //If so, we need to display its handedness, not its sign
+            ptrB = ptrA;
+            secondInst=false;
+            while (ptrB!=start) {
+                //Move backward
+                ptrB = ptrB->prev;
+                if (ptrB->num == ptrA->num) {
+                    secondInst=true;
+                    break;
+                }
+            }
+            
+            //If it was the second instance, multiply by handedness +1/-1
+            //If not, multiply by sign +1/-1
+            if (secondInst)
+                outputString += to_string((ptrA->num) * (ptrA->handedness));
+            else
+                outputString += to_string((ptrA->num) * (ptrA->sign));
+            outputString += (ptrA->next!=start) ? (", ") : ("");
+            
+            //cout << to_string((ptrA->num) * (ptrA->handedness)) << endl;
+            ptrA = ptrA->next;
+        } while (ptrA!=start);
+    }
+    
+    outputString += "]";
+    
+    return outputString;
+}
+
+int * Knot::toArray() const{
+    int knotLength = 0;
+    int * extGauss = getInput(this->toExtGaussString(), knotLength);
+    return extGauss;
+}
+
+void Knot::display(ostream & out) const{
+    string outputString = this->toGaussString();
+    //string outputString = this->toExtGaussString();
+    out << outputString;
 }
 
 ostream& operator<<(ostream& out, const Knot &myKnot) {
@@ -237,27 +269,10 @@ void Knot::erase(Crossing * ptrA) {
 }
 
 Knot & Knot::operator=(const Knot &origKnot) {
-    if (this!=&origKnot) {
-        
-        this->~Knot();
-        
-        if (origKnot.mySize==0) start= 0;
-        else start = new Crossing(0);
-        
-        mySize=origKnot.mySize;
-        
-        if (mySize!=0) {
-            Crossing * nPtr = start;
-            Crossing * origPtr = origKnot.start;
-            for (int numTimes=0; numTimes<mySize; numTimes++) {
-                nPtr->num = origPtr->num;
-                if (origPtr->next!=0)
-                    nPtr->next= new Crossing(0);
-                nPtr=nPtr->next;
-                origPtr=origPtr->next;
-            }
-        }
-    }
+    int * extGauss = origKnot.toArray();
+    int knotLength = origKnot.mySize;
+    
+    //*this = Knot(extGauss, knotLength);
     
     return *this;
 }
@@ -319,6 +334,44 @@ bool Knot::rm2() {
     } while (ptrA!=start);
     
     return false;
+}
+
+void Knot::tm2() {
+    //Knot workingKnot = *this;
+    
+    int maxStrandLength = getLongestStrandLength();
+    
+    
+    for (int direction=-1; direction<=1; direction+=2) {
+        
+    }
+    
+}
+
+int Knot::getLongestStrandLength() {
+    Crossing * ptrA = this->start;
+    Crossing * ptrB;
+    
+    int maxLength = 1; //Max length of a continuous over/underpass segment
+    int currentLength; //Current length of    "           "           "
+    
+    do {
+        currentLength = 1;
+        ptrB = ptrA->next;
+        while (ptrA->sign == ptrB->sign) {
+            currentLength++;
+            ptrB = ptrB->next;
+        }
+        
+        if (currentLength > maxLength)
+            maxLength = currentLength;
+        
+        ptrA=ptrA->next;
+    } while (ptrA!=start);
+    
+    cout << "Max Length: " << maxLength << endl;
+    
+    return maxLength;
 }
 
 

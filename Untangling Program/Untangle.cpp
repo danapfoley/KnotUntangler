@@ -5,6 +5,7 @@
 
 
 void Untangle(Knot &knot) {
+    
     while (knot.size()!=0) {
         if (knot.rm2()) {
             cout << "RM2 performed: " << knot << endl;
@@ -16,6 +17,7 @@ void Untangle(Knot &knot) {
         }
         //Translation stuff
         
+        knot.tm2();
         
         break;
     }

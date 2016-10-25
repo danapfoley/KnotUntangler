@@ -14,5 +14,13 @@
 #include <string>
 #include <sstream>
 
+using namespace std;
+
 int getSign(int num);
+
+int* getInput(string knotString, int &knotLength);
+
+int index_of(int * array, int sizeOfArray, int item);
+
+int index_of_abs(int * array, int sizeOfArray, int item);
 #endif /* Utilities_h */
