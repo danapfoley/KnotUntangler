@@ -103,8 +103,6 @@ Knot::~Knot() {
             temp=start;
         }
     }
-    if (start==nullptr) cout << "Knot destroyed" << endl;
-    else cout << "Knot not destroyed" << endl;
 }
 
 string Knot::toGaussString() const{
@@ -270,7 +268,7 @@ void Knot::erase(Crossing * ptrA) {
 
 Knot & Knot::operator=(const Knot &origKnot) {
     int * extGauss = origKnot.toArray();
-    int knotLength = origKnot.mySize;
+    int knotLength = origKnot.mySize*2;
     
     //*this = Knot(extGauss, knotLength);
     

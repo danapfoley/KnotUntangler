@@ -4,7 +4,9 @@
 #include "Untangle.h"
 
 
-void Untangle(Knot &knot) {
+int Untangle(Knot &knot) {
+    
+    int origSize = knot.size();
     
     while (knot.size()!=0) {
         if (knot.rm2()) {
@@ -21,5 +23,10 @@ void Untangle(Knot &knot) {
         
         break;
     }
+    
+    if (knot.size() < origSize)
+        return 1;
+    else
+        return 0;
     
 }

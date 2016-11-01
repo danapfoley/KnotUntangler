@@ -7,7 +7,7 @@
 #include "Knot.h"
 
 
-void Untangle(Knot &knot);
+int Untangle(Knot &knot);
 
 
 #endif /* Untangle_h */
