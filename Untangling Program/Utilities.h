@@ -23,4 +23,6 @@ int* getInput(string knotString, int &knotLength);
 int index_of(int * array, int sizeOfArray, int item);
 
 int index_of_abs(int * array, int sizeOfArray, int item);
+
+void swap(int * array, int idx1, int idx2);
 #endif /* Utilities_h */

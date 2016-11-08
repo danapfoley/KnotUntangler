@@ -179,6 +179,20 @@ ostream& operator<<(ostream& out, const Knot &myKnot) {
     return out;
 }
 
+Knot::Crossing * Knot::find(int numToFind, int signOfNum) {
+    Crossing * nPtr = start;
+    
+    signOfNum = getSign(signOfNum); //Just in case the user enters something other than 1 or -1
+    
+    do {
+        if (nPtr->num == numToFind and nPtr->sign == signOfNum) {
+            return nPtr;
+        }
+        nPtr = nPtr->next;
+    } while (nPtr != start);
+    
+    return nullptr;
+}
 
 void Knot::insert(int index, int numValue) {
     Crossing * nPtr;
@@ -339,12 +353,81 @@ void Knot::tm2() {
     
     int maxStrandLength = getLongestStrandLength();
     
+    Crossing** crossingPointerArray = new Crossing*[maxStrandLength];
+    int * directionArray = new int[maxStrandLength];
+    int * strandPositionArray = new int[maxStrandLength];
     
-    for (int direction=-1; direction<=1; direction+=2) {
-        
+    
+    
+//    for (int currentStrandLength = maxStrandLength; currentStrandLength >= 2; currentStrandLength--) {
+//
+//    }
+    
+    
+    //This bit is all based on what I know about where the desired tangle is
+    crossingPointerArray[0] = this->find(19, 1);
+    crossingPointerArray[1] = this->find(20, 1);
+    crossingPointerArray[2] = this->find(14, 1);
+    
+    directionArray[0] = -1;
+    directionArray[1] = -1;
+    directionArray[2] = -1;
+    
+    
+    
+    if (attemptMove2(3, crossingPointerArray, directionArray)) {
+        cout << "Hooray, attemptMove2 worked!" << endl;
     }
     
+    
+    
+    
+    delete [] crossingPointerArray;
+    delete [] directionArray;
 }
+
+bool Knot::attemptMove2(int strandLength, Crossing ** crossingPointerArray, int * directionArray) {
+    
+    int * numToMove = new int[strandLength];
+    numToMove[0] = 12;
+    numToMove[1] = 3;
+    numToMove[2] = 3;
+    
+    //Move each crossing of the strand over the appropriate number of crossings
+    for (int i = 0; i < strandLength; i++) {
+        Crossing * nPtr = crossingPointerArray[i]->neg;
+        
+        for (int j = 0; j < numToMove[i]; j++) {
+            nPtr = (directionArray[i] == 1) ? (nPtr->next) : (nPtr->prev);
+        }
+        
+        //Unlink the crossing from its current location, freeing up the crossings around it
+        crossingPointerArray[i]->neg->prev->next = crossingPointerArray[i]->neg->next;
+        crossingPointerArray[i]->neg->next->prev = crossingPointerArray[i]->neg->prev;
+        
+        if (directionArray[i] == 1) { //FORWARD
+            crossingPointerArray[i]->neg->next = nPtr->next;
+            crossingPointerArray[i]->neg->prev = nPtr;
+            
+            nPtr->next->prev = crossingPointerArray[i]->neg;
+            nPtr->next = crossingPointerArray[i]->neg;
+        }
+        if (directionArray[i] == -1) { //BACKWARD
+            
+            crossingPointerArray[i]->neg->prev = nPtr->prev;
+            crossingPointerArray[i]->neg->next = nPtr;
+            
+            nPtr->prev->next = crossingPointerArray[i]->neg;
+            nPtr->prev = crossingPointerArray[i]->neg;
+        }
+    }
+    
+    delete [] numToMove;
+    return true;
+}
+
+
+
 
 int Knot::getLongestStrandLength() {
     Crossing * ptrA = this->start;

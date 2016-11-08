@@ -107,6 +107,7 @@ private:
         
     };
     
+    Crossing * find(int numToFind, int signOfNum);
     
     //Insert a crossing at a specified index. Not currently used
     void insert(int index, int numValue);
@@ -116,6 +117,8 @@ private:
     
     //Removes a given crossing based on a pointer to it
     void erase(Crossing * crossingA);
+    
+    bool attemptMove2(int strandLength, Crossing ** crossingPointerArray, int * directionArray);
     
     //Starting crossing of the knot
     //This is somewhat arbitrary

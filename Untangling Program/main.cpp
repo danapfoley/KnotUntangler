@@ -13,6 +13,7 @@ void runAllTests();
 int rm1Test();
 int rm2Test();
 int conversionTest();
+int executeTM2Test();
 
 int main() {
     int knotLength=0;
@@ -45,9 +46,10 @@ int main() {
 void runAllTests() {
     int numTestsFailed = 0
     
-    + rm1Test()
-    + rm2Test()
-    + conversionTest();
+    //+ rm1Test()
+    //+ rm2Test()
+    //+ conversionTest()
+    + executeTM2Test();
     
     cout << "Total tests failed: " << -1 * numTestsFailed << endl;
 }
@@ -113,6 +115,31 @@ int conversionTest() {
     }
     else {
         cout << "Conversions to string/array passed" << endl;
+        return 0;
+    }
+}
+
+int executeTM2Test() {
+    int knotLength=0;
+    
+    string knotStringExt = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
+    
+    string expectedResultNonExt = "[1, -2, 3, -4, 5, -6, 7, -1, 8, -9, 10, -20, -11, 12, -13, -5, 15, -3, 17, -18, 9, 19, 20, 14, 21, -17, 22, -8, 23, -7, 2, -22, 18, -10, -19, 24, -25, 26, 6, -15, 4, -21, -14, 27, -12, 28, -26, 29, -24, 11, -27, 13, -28, 25, -29, -23]";
+    
+    int * extGauss = getInput(knotStringExt, knotLength);
+    
+    Knot knot(extGauss,knotLength);
+    
+    knot.tm2();
+    
+    if (knot.toGaussString() != expectedResultNonExt) {
+        cout << "Executing tm2 FAILED" << endl;
+        cout << "Expected Result: " << endl << expectedResultNonExt << endl;
+        cout << "Actual Result: " << endl << knot.toGaussString() << endl;
+        return -1;
+    }
+    else {
+        cout << "Executing tm2 passed" << endl;
         return 0;
     }
 }

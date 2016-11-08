@@ -72,5 +72,13 @@ int index_of_abs(int array[], int sizeOfArray, int item) {
     return index;
 }
 
+//I'm gonna swap these in place with no temp var cause it's 12:30am and I feel like it
+void swap(int array[], int idx1, int idx2) {
+    array[idx1] = array[idx1] + array[idx2];
+    array[idx2] = array[idx1] - array[idx2];
+    array[idx1] = array[idx1] - array[idx2];
+
+}
+
 
 
