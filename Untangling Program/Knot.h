@@ -118,7 +118,7 @@ private:
     //Removes a given crossing based on a pointer to it
     void erase(Crossing * crossingA);
     
-    bool attemptMove2(int strandLength, Crossing ** crossingPointerArray, int * directionArray);
+    bool attemptMove2(int strandLength, Crossing ** crossingPointerArray, int * directionArray, int * strandPositionArray);
     
     //Starting crossing of the knot
     //This is somewhat arbitrary

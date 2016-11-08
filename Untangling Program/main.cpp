@@ -26,7 +26,7 @@ int main() {
     
     cout << "Knot after being created: " << knot << endl << endl;
     
-    Untangle(knot);
+    //Untangle(knot);
     
     cout << "Knot after being untangled: " << knot << endl << endl;
     
@@ -46,9 +46,9 @@ int main() {
 void runAllTests() {
     int numTestsFailed = 0
     
-    //+ rm1Test()
-    //+ rm2Test()
-    //+ conversionTest()
+    + rm1Test()
+    + rm2Test()
+    + conversionTest()
     + executeTM2Test();
     
     cout << "Total tests failed: " << -1 * numTestsFailed << endl;
@@ -63,7 +63,7 @@ int rm1Test() {
     
     Knot knot(extGauss, knotLength);
     
-    if (Untangle(knot)) {
+    if (knot.rm1()) {
         cout << "RM1 test passed" << endl;
         return 0;
     }
@@ -83,7 +83,7 @@ int rm2Test() {
     
     Knot knot(extGauss, knotLength);
     
-    if (Untangle(knot)) {
+    if (knot.rm2()) {
         cout << "RM2 test passed" << endl;
         return 0;
     }
@@ -139,7 +139,8 @@ int executeTM2Test() {
         return -1;
     }
     else {
-        cout << "Executing tm2 passed" << endl;
+        cout << "Executing tm2 test passed" << endl;
+        cout << "Result: " << endl << knot.toGaussString() << endl;
         return 0;
     }
 }
