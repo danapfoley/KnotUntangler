@@ -20,7 +20,17 @@ int getSign(int num);
 
 int* getInput(string knotString, int &knotLength);
 
-int index_of(int * array, int sizeOfArray, int item);
+template <class type>
+int index_of(type array[], int sizeOfArray, int item) {
+    int index = -1;
+    for (int i=0; i<sizeOfArray; i++) {
+        if (array[i] == item) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
 
 int index_of_abs(int * array, int sizeOfArray, int item);
 

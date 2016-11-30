@@ -59,12 +59,17 @@ public:
     //Tries to perform Reduction Move 2, returns true/false on success/failure
     bool rm2();
     
-    //Knot tm1();
+    //void tm1();
     
     void tm2();
     
+    
     //Gets length of the longest continuous over/underpass segment
     int getLongestStrandLength();
+    
+    int crossingTurnTest();
+    
+    int findStrandsOfLengthTest();
     
     
 private:
@@ -104,6 +109,11 @@ private:
         inline int getSign() {return sign;}
         inline int getHandedness() {return handedness;}
         
+        Crossing * advance(int direction);
+        Crossing * recede(int direction);
+        Crossing * turnLeft(int direction);
+        Crossing * turnRight(int direction);
+        
         
     };
     
@@ -118,7 +128,11 @@ private:
     //Removes a given crossing based on a pointer to it
     void erase(Crossing * crossingA);
     
+    void turnTrace(Crossing * strandPtr, int strandLength, int side);
+    
     bool attemptMove2(int strandLength, Crossing ** crossingPointerArray, int * directionArray, int * strandPositionArray);
+    
+    void findStrandsOfLength(int length, Crossing** crossingPtrArray);
     
     //Starting crossing of the knot
     //This is somewhat arbitrary

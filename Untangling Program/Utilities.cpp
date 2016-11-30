@@ -46,18 +46,7 @@ int* getInput(string knotString, int &knotLength) {
     return extGauss;
 }
 
-int index_of(int array[], int sizeOfArray, int item) {
-    int index = -1;
-    
-    for (int i=0; i<sizeOfArray; i++) {
-        if (array[i] == item) {
-            index = i;
-            break;
-        }
-    }
-    
-    return index;
-}
+//index_of is in the header file
 
 int index_of_abs(int array[], int sizeOfArray, int item) {
     int index = -1;
