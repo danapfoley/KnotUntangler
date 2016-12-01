@@ -21,7 +21,7 @@ int getSign(int num);
 int* getInput(string knotString, int &knotLength);
 
 template <class type>
-int index_of(type array[], int sizeOfArray, int item) {
+int index_of(type array[], int sizeOfArray, type item) {
     int index = -1;
     for (int i=0; i<sizeOfArray; i++) {
         if (array[i] == item) {

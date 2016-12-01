@@ -109,10 +109,10 @@ private:
         inline int getSign() {return sign;}
         inline int getHandedness() {return handedness;}
         
-        Crossing * advance(int direction);
-        Crossing * recede(int direction);
-        Crossing * turnLeft(int direction);
-        Crossing * turnRight(int direction);
+        Crossing * advance(int & direction);
+        Crossing * recede(int & direction);
+        Crossing * turnLeft(int & direction);
+        Crossing * turnRight(int & direction);
         
         
     };
@@ -126,9 +126,11 @@ private:
     void erase(int index);
     
     //Removes a given crossing based on a pointer to it
-    void erase(Crossing * crossingA);
+    void erase(Crossing* crossingA);
     
-    void turnTrace(Crossing * strandPtr, int strandLength, int side);
+    void turnTrace(Crossing* strandPtr, int strandLength, int side);
+    
+    bool turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, int strandLength, Crossing** pathArray, int& pathLength, int numIntersections, int direction);
     
     bool attemptMove2(int strandLength, Crossing ** crossingPointerArray, int * directionArray, int * strandPositionArray);
     

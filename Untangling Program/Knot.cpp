@@ -326,20 +326,22 @@ Knot::Crossing & Knot::Crossing::operator=(const Crossing &origCrossing) {
 }
 
 
-Knot::Crossing* Knot::Crossing::advance(int direction) {
+Knot::Crossing* Knot::Crossing::advance(int & direction) {
     return (direction > 0) ? (this->next) : (this->prev);
 }
 
-Knot::Crossing* Knot::Crossing::recede(int direction) {
+Knot::Crossing* Knot::Crossing::recede(int & direction) {
     return (direction > 0) ? (this->prev) : (this->next);
 }
 
-Knot::Crossing* Knot::Crossing::turnLeft(int direction) {
-    return (this->neg)->advance(direction * (this->handedness) * (this->sign));
+Knot::Crossing* Knot::Crossing::turnLeft(int & direction) {
+    direction = direction * (this->handedness) * (this->sign);
+    return (this->neg)->advance(direction);
 }
 
-Knot::Crossing* Knot::Crossing::turnRight(int direction) {
-    return (this->neg)->advance(direction * (this->handedness) * (this->sign) * -1);
+Knot::Crossing* Knot::Crossing::turnRight(int & direction) {
+    direction = direction * (this->handedness) * (this->sign) * -1;
+    return (this->neg)->advance(direction);
 }
 
 bool Knot::rm1() {
@@ -406,15 +408,129 @@ void Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     //Holds all crossings in one strand
     Crossing** strandArray = new Crossing*[strandLength];
     
-    for (int i = 0; i < strandLength; i++) {
-        strandArray[i] = strandPtr;
-        strandPtr = strandPtr->next;
+    //Start and end crossings (where we trace from and to)
+    Crossing* startCrossing;
+    Crossing* endCrossing;
+    
+    //Total number of intersections on the far side of the tangle
+    //Should be constrained to n (aka strandLength) for an n-tangle
+    int numIntersections = 0;
+
+    //Current direction being traced in.
+    //This will get changed by the turn functions.
+    int direction;
+    
+    
+    if (side == 1) {
+        for (int i = strandLength - 1; i >= 0; i--) {
+            strandArray[i] = strandPtr;
+            strandPtr = strandPtr->next;
+        }
+        direction = -1;
     }
+    
+    else { //(side == -1)
+        for (int i = 0; i < strandLength; i++) {
+            strandArray[i] = strandPtr;
+            strandPtr = strandPtr->next;
+        }
+        direction = 1;
+    }
+    
+    startCrossing = strandArray[0];
+    endCrossing = strandArray[strandLength-1];
+    strandPtr = startCrossing->turnLeft(direction);
+    
+    Crossing** pathArray = new Crossing*[mySize - strandLength];
+    for (int i = 1; i < mySize - strandLength; i++) {
+        pathArray[i]=nullptr;
+    }
+    int pathLength = 0;
+    
+    
+    turnTraceHelper(strandArray[0], strandArray, strandLength, pathArray, pathLength, numIntersections, direction);
     
     
     
     
     delete [] strandArray;
+    delete [] pathArray;
+}
+
+bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, int strandLength, Crossing** pathArray, int& pathLength, int numIntersections, int direction) {
+    
+    //Used for preventing direction from being affected by turn functions
+    int dummyDirection;
+    
+    Crossing* endCrossing = strandArray[strandLength-1];
+    
+    
+    //currentCrossing is pointing to one of the crossing completions of the strand
+    bool boolInStrand = index_of(strandArray, strandLength, currentCrossing->neg) > -1;
+    
+    //currentCrossing has hit the rightmost strand endpoint
+    bool boolHitRightEndpt = currentCrossing == endCrossing;
+    
+    //currentCrossing has hit the leftmost strand endpoint
+    bool boolHitLeftEndpt = index_of(strandArray, strandLength, currentCrossing) == 0;
+    
+    //currentCrossing is at endCrossing
+    bool boolAtEnd = currentCrossing->neg == endCrossing;
+    
+    //currentCrossing approached the end crossing from the proper direction
+    dummyDirection = direction;
+    bool boolRightDir = index_of(strandArray, strandLength, currentCrossing->turnRight(dummyDirection)) > -1;
+    
+    //correct number of intersections
+    bool boolRightNumIntsx = numIntersections == strandLength;
+    
+    
+    
+    //If we hit a stop condition
+    if ((boolInStrand and !boolAtEnd) or (boolAtEnd and !boolRightDir) or (boolHitRightEndpt)) {
+        return false;
+    }
+    
+    //If we hit a complete halt condition
+    if (boolHitLeftEndpt) {
+        return false;
+    }
+    
+    //If we:
+    //1. Ended up at the proper end crossing
+    //2. Encountered the end crossing from the right direction
+    //2. Crossed the right number of strands along the way
+    //Then return success
+    if (boolAtEnd and boolRightDir and boolRightNumIntsx) {
+        return true;
+    }
+    
+    //Mark current crossing as part of solution path
+    pathArray[pathLength] = currentCrossing;
+    pathLength++;
+    
+    //Try turning right
+    dummyDirection = direction;
+    if (numIntersections + 2 <= strandLength and turnTraceHelper(currentCrossing->turnRight(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 2, dummyDirection)) {
+        
+        return true;
+    }
+    //Try going straight
+    dummyDirection = direction;
+    if (numIntersections + 1 <= strandLength and turnTraceHelper(currentCrossing->advance(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 1, dummyDirection)) {
+        
+        return true;
+    }
+    //Try turning left
+    dummyDirection = direction;
+    if (numIntersections + 0 <= strandLength and turnTraceHelper(currentCrossing->turnLeft(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 0, dummyDirection)) {
+        
+        return true;
+    }
+    //Unmark current crossing as being part of solution path
+    pathLength--;
+    pathArray[pathLength]=0;
+    return false;
 }
 
 void Knot::findStrandsOfLength(int length, Crossing** crossingPtrArray) {
@@ -605,7 +721,8 @@ int Knot::getLongestStrandLength() {
 }
 
 int Knot::crossingTurnTest() {
-    if (this->find(19, -1)->turnLeft(-1)->num != 20) {
+    int direction = -1;
+    if (this->find(19, -1)->turnLeft(direction)->num != 20) {
         cout << "Crossing turn test FAILED" << endl;
         return -1;
     }
