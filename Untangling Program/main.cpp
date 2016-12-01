@@ -24,13 +24,11 @@ int main() {
     
     int * extGauss = getInput(knotString, knotLength);
     
-    cout << "Index of 5: " << index_of(extGauss, knotLength, 5) << endl;
-    
     Knot knot(extGauss,knotLength);
     
     cout << "Knot after being created: " << knot << endl << endl;
     
-    //Untangle(knot);
+    Untangle(knot);
     
     cout << "Knot after being untangled: " << knot << endl << endl;
     
@@ -41,7 +39,7 @@ int main() {
     Name(finalKnotArray, knotLength);
     
     
-    runAllTests();
+    //runAllTests();
     
     
     return 0;

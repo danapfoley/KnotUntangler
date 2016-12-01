@@ -386,19 +386,23 @@ void Knot::tm2() {
         strandArray[i] = nullptr;
     }
     
-    for (int strandLength = maxStrandLength; strandLength >= 2; strandLength--) {
-        findStrandsOfLength(strandLength, strandArray);
-        
-        cout << "Length: " << strandLength << endl;
-        int idx = 0;
-        while (strandArray[idx]!=nullptr) {
-            cout << "strandArray[" << idx << "]: " << strandArray[idx]->num << endl;
-            turnTrace(strandArray[idx], strandLength, 1);
-            turnTrace(strandArray[idx], strandLength, -1);
-            
-            idx++;
-        }
-    }
+//    for (int strandLength = maxStrandLength; strandLength >= 2; strandLength--) {
+//        findStrandsOfLength(strandLength, strandArray);
+//        
+//        cout << "Length: " << strandLength << endl;
+//        int idx = 0;
+//        while (strandArray[idx]!=nullptr) {
+//            cout << "strandArray[" << idx << "]: " << strandArray[idx]->num << endl;
+//            turnTrace(strandArray[idx], strandLength, 1);
+//            turnTrace(strandArray[idx], strandLength, -1);
+//            
+//            idx++;
+//        }
+//    }
+    
+    int strandLength = 3;
+    findStrandsOfLength(strandLength, strandArray);
+    turnTrace(strandArray[2], strandLength, 1);
     
     
     delete [] strandArray;
@@ -439,7 +443,6 @@ void Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     
     startCrossing = strandArray[0];
     endCrossing = strandArray[strandLength-1];
-    strandPtr = startCrossing->turnLeft(direction);
     
     Crossing** pathArray = new Crossing*[mySize - strandLength];
     for (int i = 1; i < mySize - strandLength; i++) {
@@ -448,7 +451,14 @@ void Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     int pathLength = 0;
     
     
-    turnTraceHelper(strandArray[0], strandArray, strandLength, pathArray, pathLength, numIntersections, direction);
+    if (turnTraceHelper(startCrossing->turnLeft(direction), strandArray, strandLength, pathArray, pathLength, numIntersections, direction)) {
+        cout << "Path Length: " << pathLength << endl;
+        cout << "Path: ";
+        for (int i = 0; i < pathLength; i++) {
+            cout << pathArray[i]->num << ", ";
+        }
+        cout << endl;
+    }
     
     
     
@@ -458,6 +468,16 @@ void Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
 }
 
 bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, int strandLength, Crossing** pathArray, int& pathLength, int numIntersections, int direction) {
+    
+    
+    //cout << "Entering turnTraceHelper" << endl;
+    
+    if (pathLength > 30) {
+        cout << "Path got too big" << endl;
+        return false;
+    }
+    
+   
     
     //Used for preventing direction from being affected by turn functions
     int dummyDirection;
@@ -481,18 +501,23 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     dummyDirection = direction;
     bool boolRightDir = index_of(strandArray, strandLength, currentCrossing->turnRight(dummyDirection)) > -1;
     
+    //currentCrossing hit a crossing it has already encountered
+    bool boolLoopedBack = index_of(pathArray, pathLength, currentCrossing) > -1 or index_of(pathArray, pathLength, currentCrossing->neg) > -1;
+    
     //correct number of intersections
     bool boolRightNumIntsx = numIntersections == strandLength;
     
     
     
     //If we hit a stop condition
-    if ((boolInStrand and !boolAtEnd) or (boolAtEnd and !boolRightDir) or (boolHitRightEndpt)) {
+    if ((boolInStrand and !boolAtEnd) or (boolAtEnd and !boolRightDir) or (boolHitRightEndpt) or (boolLoopedBack)) {
+        cout << "Returned false at A" << endl;
         return false;
     }
     
     //If we hit a complete halt condition
     if (boolHitLeftEndpt) {
+        cout << "Returned false at B" << endl;
         return false;
     }
     
@@ -502,6 +527,7 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     //2. Crossed the right number of strands along the way
     //Then return success
     if (boolAtEnd and boolRightDir and boolRightNumIntsx) {
+        cout << "Found tangle" << endl;
         return true;
     }
     
@@ -511,18 +537,22 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     
     //Try turning right
     dummyDirection = direction;
+    cout << "Trying to turn right at: " << currentCrossing->num << endl;
     if (numIntersections + 2 <= strandLength and turnTraceHelper(currentCrossing->turnRight(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 2, dummyDirection)) {
+        
         
         return true;
     }
     //Try going straight
     dummyDirection = direction;
+    cout << "Trying to go straight at: " << currentCrossing->num << endl;
     if (numIntersections + 1 <= strandLength and turnTraceHelper(currentCrossing->advance(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 1, dummyDirection)) {
         
         return true;
     }
     //Try turning left
     dummyDirection = direction;
+    cout << "Trying to turn left at: " << currentCrossing->num << endl;
     if (numIntersections + 0 <= strandLength and turnTraceHelper(currentCrossing->turnLeft(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 0, dummyDirection)) {
         
         return true;
