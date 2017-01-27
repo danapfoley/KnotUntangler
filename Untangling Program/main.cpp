@@ -48,11 +48,11 @@ int main() {
 void runAllTests() {
     int numTestsFailed = 0
     
-    //+ rm1Test()
-    //+ rm2Test()
-    //+ conversionTest()
-    +crossingTurnTest()
-    +findStrandsOfLengthTest();
+    + rm1Test()
+    + rm2Test()
+    + conversionTest()
+    + crossingTurnTest()
+    + findStrandsOfLengthTest();
     
     cout << "Total tests failed: " << -1 * numTestsFailed << endl;
 }

@@ -26,6 +26,10 @@ public:
     	//to first set up the knot to be worked on
     Knot(int extGauss[],int knotLength);
     
+    void constructFromGauss(int extGauss[], int knotLength);
+    
+    Knot(const Knot &origKnot);
+    
     //Return the size of the knot.
     //If the knot has n crossing objects in it,
     	//mySize will be n/2, since each crossing object
@@ -47,6 +51,8 @@ public:
     //Deletes all crossing objects
     ~Knot();
     
+    void deconstruct();
+    
     //Knot assignment operator, similar to copy constructor
     Knot & operator=(const Knot &origKnot);
     
@@ -59,9 +65,14 @@ public:
     //Tries to perform Reduction Move 2, returns true/false on success/failure
     bool rm2();
     
+    bool dummyRM1();
+    
+    bool dummyRM2();
+    
+    
     //void tm1();
     
-    void tm2();
+    bool tm2();
     
     
     //Gets length of the longest continuous over/underpass segment
@@ -109,10 +120,14 @@ private:
         inline int getSign() {return sign;}
         inline int getHandedness() {return handedness;}
         
-        Crossing * advance(int & direction);
-        Crossing * recede(int & direction);
+        Crossing * advance(int direction);
+        Crossing * recede(int direction);
         Crossing * turnLeft(int & direction);
         Crossing * turnRight(int & direction);
+        
+        Crossing * dummyTurnLeft(int direction);
+        Crossing * dummyTurnRight(int direction);
+        
         
         
     };
@@ -128,13 +143,15 @@ private:
     //Removes a given crossing based on a pointer to it
     void erase(Crossing* crossingA);
     
-    void turnTrace(Crossing* strandPtr, int strandLength, int side);
+    bool turnTrace(Crossing* strandPtr, int strandLength, int side);
     
     bool turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, int strandLength, Crossing** pathArray, int& pathLength, int numIntersections, int direction);
     
-    bool attemptMove2(int strandLength, Crossing ** crossingPointerArray, int * directionArray, int * strandPositionArray);
-    
-    void findStrandsOfLength(int length, Crossing** crossingPtrArray);
+        
+    //Locates all possible strands of given length
+    //crossingPtrArray is given as an empty array,
+        //and gets filled with starting crossings for each strand
+    void findStrandsOfLength(int length, Crossing** crossingPtrArray, int& arrayLength);
     
     //Starting crossing of the knot
     //This is somewhat arbitrary

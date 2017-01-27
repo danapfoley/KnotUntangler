@@ -19,7 +19,9 @@ int Untangle(Knot &knot) {
         }
         //Translation stuff
         
-        knot.tm2();
+        if (knot.tm2()) {
+            continue;
+        }
         
         break;
     }
