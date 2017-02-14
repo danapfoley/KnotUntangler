@@ -9,6 +9,15 @@ Knot::Knot(int extGauss[], int knotLength) {
     constructFromGauss(extGauss, knotLength);
 }
 
+Knot::Knot(string inputString) {
+    mySize = 0;
+    start = nullptr;
+    
+    int knotLength = 0;
+    int * extGauss = getInput(inputString, knotLength);
+    constructFromGauss(extGauss, knotLength);
+}
+
 Knot::Knot(const Knot &origKnot) {
     mySize = 0;
     start = nullptr;
@@ -455,11 +464,11 @@ bool Knot::tm2() {
         
         for (int idx = 0; idx < numStrandsForArray; idx++) {
             cout << "strandArray[" << idx << "]: " << strandArray[idx] << endl;
-            if (turnTrace(find(strandArray[idx]), strandLength, 1)) {
+            if (turnTrace(find(strandArray[idx]), strandLength, 1)
+                or turnTrace(find(strandArray[idx]), strandLength, -1)) {
                 delete [] strandArray;
                 return true;
             }
-            //turnTrace(strandArray[idx], strandLength, -1);
         }
     }
     

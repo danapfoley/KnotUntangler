@@ -7,7 +7,36 @@
 //
 
 
-#include "Untangle.h"
+#include "Knot.h"
+
+int Untangle(Knot &knot) {
+    
+    int origSize = knot.size();
+    
+    while (knot.size()!=0) {
+        if (knot.rm2()) {
+            cout << "RM2 performed: " << knot << endl;
+            continue;
+        }
+        if (knot.rm1()) {
+            cout << "RM1 performed: " << knot << endl;
+            continue;
+        }
+        //Translation stuff
+        
+        if (knot.tm2()) {
+            continue;
+        }
+        
+        break;
+    }
+    
+    if (knot.size() < origSize)
+        return 1;
+    else
+        return 0;
+    
+}
 
 void runAllTests();
 int rm1Test();
@@ -18,16 +47,14 @@ int findStrandsOfLengthTest();
 //int executeTM2Test();
 
 int main() {
-    int knotLength=0;
     
     string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
     
     //Reduced version
     //string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, 10, -11, 12, -13, -5, 15, 3, 17, -18, 9, 17, 22, 8, 23, -7, -2, -22, 18, 9, 10, 24, -25, 26, 6, -15, -4, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 23]";
     
-    int * extGauss = getInput(knotString, knotLength);
     
-    Knot knot(extGauss,knotLength);
+    Knot knot(knotString);
     
     cout << "Knot after being created: " << knot << endl << endl;
     
@@ -38,7 +65,7 @@ int main() {
     
     //Get array from final knot for naming program
     int * finalKnotArray = knot.toArray();
-    knotLength = knot.size()*2; //size returns the number of crossings, and we need twice that for arrays
+    int knotLength = knot.size()*2; //size returns the number of crossings, and we need twice that for arrays
     Name(finalKnotArray, knotLength);
     
     
@@ -174,4 +201,3 @@ int findStrandsOfLengthTest() {
 //        return 0;
 //    }
 //}
-

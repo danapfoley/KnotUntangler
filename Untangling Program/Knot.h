@@ -26,6 +26,8 @@ public:
     	//to first set up the knot to be worked on
     Knot(int extGauss[],int knotLength);
     
+    Knot(string inputString);
+    
     void constructFromGauss(int extGauss[], int knotLength);
     
     Knot(const Knot &origKnot);
