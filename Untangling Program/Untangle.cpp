@@ -10,11 +10,11 @@ int Untangle(Knot &knot) {
     
     while (knot.size()!=0) {
         if (knot.rm2()) {
-            cout << "RM2 performed: " << knot << endl;
+            cout << "RM2 performed: " << knot.toExtGaussString() << endl;
             continue;
         }
         if (knot.rm1()) {
-            cout << "RM1 performed: " << knot << endl;
+            cout << "RM1 performed: " << knot.toExtGaussString() << endl;
             continue;
         }
         //Translation stuff

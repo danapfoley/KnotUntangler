@@ -133,6 +133,7 @@ private:
     };
     
     Crossing * find(int numToFind, int signOfNum);
+    Crossing * find(int numToFindWithSign);
     
     //Insert a crossing at a specified index. Not currently used
     void insert(int index, int numValue);
@@ -151,7 +152,7 @@ private:
     //Locates all possible strands of given length
     //crossingPtrArray is given as an empty array,
         //and gets filled with starting crossings for each strand
-    void findStrandsOfLength(int length, Crossing** crossingPtrArray, int& arrayLength);
+    void findStrandsOfLength(int length, int* crossingArray, int& arrayLength);
     
     //Starting crossing of the knot
     //This is somewhat arbitrary
