@@ -25,7 +25,7 @@ void reNumber(int extGauss[], int knotLength) {
             continue;
         
         
-        temp[i] = extGauss[i]; //Put first half of crossing into temp (not reduced yet
+        temp[i] = extGauss[i]; //Put first half of crossing into temp (not reduced yet)
         extGauss[i] = 0; //So index_of_abs finds the other half of the crossing, not this one
         negativeIndex = index_of_abs(extGauss, knotLength, temp[i]); //Find the other half of the crossing
         

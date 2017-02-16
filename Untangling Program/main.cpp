@@ -9,34 +9,26 @@
 
 #include "Knot.h"
 
-int Untangle(Knot &knot) {
-    
-    int origSize = knot.size();
-    
-    while (knot.size()!=0) {
-        if (knot.rm2()) {
-            cout << "RM2 performed: " << knot << endl;
-            continue;
-        }
-        if (knot.rm1()) {
-            cout << "RM1 performed: " << knot << endl;
-            continue;
-        }
-        //Translation stuff
-        
-        if (knot.tm2()) {
-            continue;
-        }
-        
-        break;
-    }
-    
-    if (knot.size() < origSize)
-        return 1;
-    else
-        return 0;
-    
-}
+
+//Set to 1 to print out basic debug info during execution
+#define Debug 1
+
+//Set to 1 to run basic operative tests
+#define doTests 0
+
+#if doTests
+#define test(x) x
+#else
+#define test(x)
+#endif
+
+#if Debug
+#define dPrint(x) x
+#else
+#define dPrint(x)
+#endif
+
+
 
 void runAllTests();
 int rm1Test();
@@ -44,9 +36,55 @@ int rm2Test();
 int conversionTest();
 int crossingTurnTest();
 int findStrandsOfLengthTest();
-//int executeTM2Test();
+int executeTM2Test();
+
+
+//Basic control function for untangling
+bool Untangle(Knot &knot) {
+    
+    //Keep track of what the original size of the knot was
+    //To see if we ended up reducing at all
+    int origSize = knot.size();
+    
+    //While the knot is not the unknot
+    while (knot.size()!=0) {
+        
+        //Try immediate reductions first
+        if (knot.rm2()) {
+            dPrint(cout << "RM2 performed: " << knot << endl;)
+            continue;
+        }
+        if (knot.rm1()) {
+            dPrint(cout << "RM1 performed: " << knot << endl;)
+            continue;
+        }
+        
+        //Try translations
+        //tm2 internally tests for potential success
+        
+        if (knot.tm2()) {
+            dPrint(cout << "TM2 performed: " << knot << endl;)
+            continue;
+        }
+        
+        //Control only reaches here if knot is fully simplified and nontrivial
+        break;
+    }
+    
+    //If untangling succeeded to at least some extent
+    if (knot.size() < origSize)
+        return true;
+    else
+        return false;
+    
+}
+
+
+
 
 int main() {
+    
+    dPrint(cout << "Debug mode ON" << endl;)
     
     string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
     
@@ -56,7 +94,7 @@ int main() {
     
     Knot knot(knotString);
     
-    cout << "Knot after being created: " << knot << endl << endl;
+    dPrint(cout << "Knot after being created: " << knot << endl << endl;)
     
     Untangle(knot);
     
@@ -69,7 +107,7 @@ int main() {
     Name(finalKnotArray, knotLength);
     
     
-    //runAllTests();
+    test(runAllTests();)
     
     
     return 0;
@@ -82,7 +120,8 @@ void runAllTests() {
     + rm2Test()
     + conversionTest()
     + crossingTurnTest()
-    + findStrandsOfLengthTest();
+    + findStrandsOfLengthTest()
+    + executeTM2Test();
     
     cout << "Total tests failed: " << -1 * numTestsFailed << endl;
 }
@@ -176,28 +215,25 @@ int findStrandsOfLengthTest() {
     return knot.findStrandsOfLengthTest();
 }
 
-//int executeTM2Test() {
-//    int knotLength=0;
-//    
-//    string knotStringExt = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
-//    
-//    string expectedResultNonExt = "[1, -2, 3, -4, 5, -6, 7, -1, 8, -9, 10, -20, -11, 12, -13, -5, 15, -3, 17, -18, 9, 19, 20, 14, 21, -17, 22, -8, 23, -7, 2, -22, 18, -10, -19, 24, -25, 26, 6, -15, 4, -21, -14, 27, -12, 28, -26, 29, -24, 11, -27, 13, -28, 25, -29, -23]";
-//    
-//    int * extGauss = getInput(knotStringExt, knotLength);
-//    
-//    Knot knot(extGauss,knotLength);
-//    
-//    knot.tm2();
-//    
-//    if (knot.toGaussString() != expectedResultNonExt) {
-//        cout << "Executing tm2 FAILED" << endl;
-//        cout << "Expected Result: " << endl << expectedResultNonExt << endl;
-//        cout << "Actual Result: " << endl << knot.toGaussString() << endl;
-//        return -1;
-//    }
-//    else {
-//        cout << "Executing tm2 test passed" << endl;
-//        cout << "Result: " << endl << knot.toGaussString() << endl;
-//        return 0;
-//    }
-//}
+int executeTM2Test() {
+    
+    string knotStringExt = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
+    
+    string expectedResultNonExt = "[1, -2, 3, -4, 5, -6, 7, -1, 8, -9, 10, -20, -11, 12, -13, -5, 15, -3, 17, -18, 9, 19, 20, 14, 21, -17, 22, -8, 23, -7, 2, -22, 18, -10, -19, 24, -25, 26, 6, -15, 4, -21, -14, 27, -12, 28, -26, 29, -24, 11, -27, 13, -28, 25, -29, -23]";
+    
+    Knot knot(knotStringExt);
+    
+    knot.tm2();
+    
+    if (knot.toGaussString() != expectedResultNonExt) {
+        cout << "Executing tm2 FAILED" << endl;
+        cout << "Expected Result: " << endl << expectedResultNonExt << endl;
+        cout << "Actual Result: " << endl << knot.toGaussString() << endl;
+        return -1;
+    }
+    else {
+        cout << "Executing tm2 test passed" << endl;
+        cout << "Result: " << endl << knot.toGaussString() << endl;
+        return 0;
+    }
+}

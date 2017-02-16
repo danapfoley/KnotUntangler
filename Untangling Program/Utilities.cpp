@@ -10,6 +10,8 @@
 #include "Utilities.h"
 
 
+
+
 //Returns the sign of a number as 1 or -1 for positive or negative numbers respectively
 int getSign(int num) {
     return abs(num)/num;
@@ -48,6 +50,8 @@ int* getInput(string knotString, int &knotLength) {
 
 //index_of is in the header file
 
+//Find the index of an item in an array whose abs. value matches
+    //the abs. value of the item to find
 int index_of_abs(int array[], int sizeOfArray, int item) {
     int index = -1;
     
@@ -61,7 +65,7 @@ int index_of_abs(int array[], int sizeOfArray, int item) {
     return index;
 }
 
-//I'm gonna swap these in place with no temp var cause it's 12:30am and I feel like it
+//Simple swap for two items in an array
 void swap(int array[], int idx1, int idx2) {
     array[idx1] = array[idx1] + array[idx2];
     array[idx2] = array[idx1] - array[idx2];

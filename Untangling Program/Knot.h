@@ -3,9 +3,15 @@
 
 #include "Naming.h"
 
+#define knotDebug 1
+
+#if knotDebug
+#define kPrint(x) x
+#else
+#define kPrint(x)
+#endif
 
 
-//----- Add typdef statement here
 
 class Knot
 {

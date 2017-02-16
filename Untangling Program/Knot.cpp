@@ -9,15 +9,21 @@ Knot::Knot(int extGauss[], int knotLength) {
     constructFromGauss(extGauss, knotLength);
 }
 
+//Construct a knot from an Extended Gauss Code string
+//We expect the user to input this correctly,
+    //as we do not know a way to verify accurate codes
 Knot::Knot(string inputString) {
+    //We need to assign these so constructFromGauss doesn't try to run deconstruct()
     mySize = 0;
     start = nullptr;
     
+    //Use getInput to turn string into array
     int knotLength = 0;
     int * extGauss = getInput(inputString, knotLength);
     constructFromGauss(extGauss, knotLength);
 }
 
+//Copy Constructor
 Knot::Knot(const Knot &origKnot) {
     mySize = 0;
     start = nullptr;
@@ -27,6 +33,8 @@ Knot::Knot(const Knot &origKnot) {
     constructFromGauss(extGauss, knotLength);
 }
 
+//Construct a knot from an Extended Gauss Code array
+//knotLength must be established as the size of the array
 void Knot::constructFromGauss(int extGauss[], int knotLength) {
     deconstruct();
     //Create new blank crossing to begin with
@@ -70,6 +78,8 @@ void Knot::constructFromGauss(int extGauss[], int knotLength) {
         nPtr=nPtr->next;
         mySize++;
     }
+    //We incremented mySize to the number of crossing *objects*
+    //But we want it to be just the number of crossings, period
     mySize=mySize/2;
     
     
@@ -96,15 +106,15 @@ void Knot::constructFromGauss(int extGauss[], int knotLength) {
             }
             else if (abs(extGauss[idx])==abs(extGauss[idx2])) {
                 if (idx<idx2) {
-                    nPtr->sign  =getSign(extGauss[idx]);
-                    nPtr2->sign =-getSign(extGauss[idx]);
+                    nPtr->sign  = getSign(extGauss[idx]);
+                    nPtr2->sign = -getSign(extGauss[idx]);
                     nPtr->handedness  = getSign(extGauss[idx2]);
                     nPtr2->handedness = getSign(extGauss[idx2]);
                     break;
                 }
                 else /* if (idx2<idx) */ {
-                    nPtr->sign  =-getSign(extGauss[idx2]);
-                    nPtr2->sign =getSign(extGauss[idx2]);
+                    nPtr->sign  = -getSign(extGauss[idx2]);
+                    nPtr2->sign = getSign(extGauss[idx2]);
                     nPtr->handedness  = getSign(extGauss[idx]);
                     nPtr2->handedness = getSign(extGauss[idx]);
                     break;
@@ -120,6 +130,7 @@ Knot::~Knot() {
     deconstruct();
 }
 
+//Delete all crossings from the knot
 void Knot::deconstruct() {
     if (start != nullptr and mySize != 0) {
         start->prev->next=nullptr;
@@ -133,20 +144,17 @@ void Knot::deconstruct() {
     mySize = 0;
 }
 
+//Return a string of the non-extended Gauss Code
 string Knot::toGaussString() const{
     Crossing * ptr = start;
     string outputString = "[";
     
-    int counter = 0;
     
     if (ptr!=nullptr) {
         do {
             outputString += to_string((ptr->num)*(ptr->sign));
             outputString += (ptr->next!=start) ? (", ") : ("");
             ptr = ptr->next;
-            
-            counter++;
-            if (counter > 60) break;
             
         } while (ptr!=start);
     }
@@ -156,6 +164,7 @@ string Knot::toGaussString() const{
     return outputString;
 }
 
+//Return a string of the Extended Gauss Code
 string Knot::toExtGaussString() const{
     Crossing * ptrA = start;
     Crossing * ptrB;
@@ -201,12 +210,16 @@ string Knot::toExtGaussString() const{
     return outputString;
 }
 
+//Return the knot as an Extended Gauss Code array
 int * Knot::toArray() const{
+    //Honestly the easiest way to do this
+    //is just to turn it into a string and use getInput
     int knotLength = 0;
     int * extGauss = getInput(this->toExtGaussString(), knotLength);
     return extGauss;
 }
 
+//Print out the knot
 void Knot::display(ostream & out) const{
     string outputString = this->toGaussString();
     //string outputString = this->toExtGaussString();
@@ -218,8 +231,11 @@ ostream& operator<<(ostream& out, const Knot &myKnot) {
     return out;
 }
 
+//Locate a crossing object in the knot based on its num and sign
 Knot::Crossing * Knot::find(int numToFind, int signOfNum) {
     Crossing * nPtr = start;
+    
+    numToFind = abs(numToFind);
     
     do {
         if (nPtr->num == numToFind and nPtr->sign == signOfNum) {
@@ -228,14 +244,17 @@ Knot::Crossing * Knot::find(int numToFind, int signOfNum) {
         nPtr = nPtr->next;
     } while (nPtr != start);
     
-    cout << "Couldn't find " << numToFind*signOfNum << endl;
+    kPrint(cout << "Couldn't find " << numToFind*signOfNum << endl;)
     return nullptr;
 }
 
+//Just an easy way to put a number into find without having to split it up into num and sign
 Knot::Crossing * Knot::find(int numToFindWithSign) {
     return find(abs(numToFindWithSign), getSign(numToFindWithSign));
 }
 
+//Insert a new crossing at an index
+//This ended up being unused but could be maybe useful in the future
 void Knot::insert(int index, int numValue) {
     Crossing * nPtr;
     nPtr = new Crossing(numValue);
@@ -260,6 +279,9 @@ void Knot::insert(int index, int numValue) {
     
 }
 
+//Delete a crossing object at a certain index
+//It doesn't appear to erase the corresponding neg crossing,
+    //but it does upon calling the other erase function
 void Knot::erase(int index) {
     Crossing * ptrA = start;
     
@@ -270,6 +292,8 @@ void Knot::erase(int index) {
     
 }
 
+//Delete a crossing object given a pointer to it
+//This one locates both the crossing and its corresponding neg, deleting both
 void Knot::erase(Crossing * ptrA) {
     Crossing * ptrB=ptrA->neg;
     
@@ -296,15 +320,11 @@ void Knot::erase(Crossing * ptrA) {
         if (ptrA->next==ptrB) {
             ptrA->prev->next=ptrB->next;
             ptrB->next->prev=ptrA->prev;
-            delete ptrA;
-            delete ptrB;
         }
         
         else if(ptrB->next==ptrA) {
             ptrB->prev->next=ptrA->next;
             ptrA->next->prev=ptrB->prev;
-            delete ptrA;
-            delete ptrB;
         }
         
         else {
@@ -313,14 +333,14 @@ void Knot::erase(Crossing * ptrA) {
             
             ptrB->prev->next=ptrB->next;
             ptrB->next->prev=ptrB->prev;
-            
-            delete ptrA;
-            delete ptrB;
         }
+        delete ptrA;
+        delete ptrB;
         
         mySize--;
     }
 }
+
 
 Knot & Knot::operator=(const Knot &origKnot) {
     int * extGauss = origKnot.toArray();
@@ -331,6 +351,7 @@ Knot & Knot::operator=(const Knot &origKnot) {
 }
 
 
+//Copy constructor
 Knot::Crossing::Crossing(const Crossing & origCrossing) {
     num=origCrossing.num;
     sign=origCrossing.sign;
@@ -355,30 +376,35 @@ Knot::Crossing & Knot::Crossing::operator=(const Crossing &origCrossing) {
     return *this;
 }
 
-
+//Move forward based on a given direction (1 for forward, -1 for backward)
 Knot::Crossing* Knot::Crossing::advance(int direction) {
     return (direction > 0) ? (this->next) : (this->prev);
 }
 
+//Move backward
 Knot::Crossing* Knot::Crossing::recede(int direction) {
     return (direction > 0) ? (this->prev) : (this->next);
 }
 
+//Turn left. These functions are why we need handedness
 Knot::Crossing* Knot::Crossing::turnLeft(int & direction) {
     direction = direction * (this->handedness) * (this->sign);
     return (this->neg)->advance(direction);
 }
 
+//Turn right
 Knot::Crossing* Knot::Crossing::turnRight(int & direction) {
     direction = direction * (this->handedness) * (this->sign) * -1;
     return (this->neg)->advance(direction);
 }
 
+//Turn left without altering the direction variable
 Knot::Crossing* Knot::Crossing::dummyTurnLeft(int direction) {
     direction = direction * (this->handedness) * (this->sign);
     return (this->neg)->advance(direction);
 }
 
+//Turn right without altering the direction variable
 Knot::Crossing* Knot::Crossing::dummyTurnRight(int direction) {
     direction = direction * (this->handedness) * (this->sign) * -1;
     return (this->neg)->advance(direction);
@@ -386,7 +412,7 @@ Knot::Crossing* Knot::Crossing::dummyTurnRight(int direction) {
 
 
 
-
+//Reduction Move 1
 bool Knot::rm1() {
     Crossing * ptrA=start;
     
@@ -419,6 +445,7 @@ bool Knot::rm2() {
     return false;
 }
 
+//See if Reduction Move 1 can work but don't actually do it
 bool Knot::dummyRM1() {
     Crossing * ptrA=start;
     
@@ -432,6 +459,7 @@ bool Knot::dummyRM1() {
     return false;
 }
 
+//See if Reduction Move 2 can work but don't actually do it
 bool Knot::dummyRM2() {
     Crossing * ptrA=start;
     Crossing * ptrB;
@@ -460,10 +488,10 @@ bool Knot::tm2() {
         }
         findStrandsOfLength(strandLength, strandArray, numStrandsForArray);
         
-        cout << "Length: " << strandLength << endl;
+        kPrint(cout << "Length: " << strandLength << endl;)
         
         for (int idx = 0; idx < numStrandsForArray; idx++) {
-            cout << "strandArray[" << idx << "]: " << strandArray[idx] << endl;
+            kPrint(cout << "strandArray[" << idx << "]: " << strandArray[idx] << endl;)
             if (turnTrace(find(strandArray[idx]), strandLength, 1)
                 or turnTrace(find(strandArray[idx]), strandLength, -1)) {
                 delete [] strandArray;
@@ -472,13 +500,6 @@ bool Knot::tm2() {
         }
     }
     
-    
-    
-//    int strandLength = 3;
-//    findStrandsOfLength(strandLength, strandArray);
-//    turnTrace(strandArray[2], strandLength, 1);
-//    
-//    
     delete [] strandArray;
     return false;
 }
@@ -486,7 +507,6 @@ bool Knot::tm2() {
 bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     
     Knot knotNoMovement(*this);
-    //knotNoMovement = *this;
     
     //Holds all crossings in one strand
     Crossing** strandArray = new Crossing*[strandLength];
@@ -513,7 +533,7 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     //We sometimes get issues with this since turnTrace throws out memory addresses
     strandPtr = find(strandPtr->num, strandPtr->sign);
     if (strandPtr == nullptr) {
-        cout << "well crap" << endl;
+        cout << "Something went horribly wrong :(" << endl;
         exit(1);
     }
     
@@ -545,19 +565,22 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     
     int dummyDirection = direction;
     if (turnTraceHelper(startCrossing->turnLeft(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections, dummyDirection)) {
-        cout << "Path Length: " << pathLength << endl;
-        cout << "Path: ";
-        for (int i = 0; i < pathLength; i++) {
-            
-            cout << pathArray[i]->num << ", ";
-            
-        }
-        cout << endl << "strandArray: ";
-        for (int i = 0; i < strandLength; i++) {
-            
-            cout << strandArray[i]->num << ", ";
-            
-        }
+        
+        kPrint({
+            cout << "Path Length: " << pathLength << endl;
+            cout << "Path: ";
+            for (int i = 0; i < pathLength; i++) {
+                
+                cout << pathArray[i]->num << ", ";
+                
+            }
+            cout << endl << "strandArray: ";
+            for (int i = 0; i < strandLength; i++) {
+                
+                cout << strandArray[i]->num << ", ";
+                
+            }
+        })
 
         Crossing * tempPtr = startCrossing->dummyTurnLeft(direction);
         
@@ -682,7 +705,6 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     delete [] pathArray;
     
     if (dummyRM1() or dummyRM2()) {
-        cout << "TM2 performed: " << *this << endl;
         return true;
     }
     else {
@@ -743,7 +765,7 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     //2. Crossed the right number of strands along the way
     //Then return success
     if (boolAtEnd and boolRightDir and boolRightNumIntsx) {
-        cout << "Found tangle" << endl;
+        kPrint(cout << "Found tangle" << endl;)
         return true;
     }
     
@@ -844,7 +866,7 @@ int Knot::getLongestStrandLength() {
         ptrA=ptrA->next;
     } while (ptrA!=start);
     
-    cout << "Max Length: " << maxLength << endl;
+    kPrint(cout << "Max Length: " << maxLength << endl;)
     
     return maxLength;
 }
