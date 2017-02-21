@@ -16,6 +16,8 @@ Knot::Knot(string inputString) {
     //We need to assign these so constructFromGauss doesn't try to run deconstruct()
     mySize = 0;
     start = nullptr;
+    startCrossing1Tangle = nullptr;
+    endCrossing1Tangle = nullptr;
     
     //Use getInput to turn string into array
     int knotLength = 0;
@@ -27,6 +29,8 @@ Knot::Knot(string inputString) {
 Knot::Knot(const Knot &origKnot) {
     mySize = 0;
     start = nullptr;
+    startCrossing1Tangle = nullptr;
+    endCrossing1Tangle = nullptr;
     int * extGauss = origKnot.toArray();
     int knotLength = origKnot.mySize*2;
     
@@ -253,6 +257,28 @@ Knot::Crossing * Knot::find(int numToFindWithSign) {
     return find(abs(numToFindWithSign), getSign(numToFindWithSign));
 }
 
+int Knot::findIndex(Knot::Crossing* crossingToFind) {
+    Crossing* ptr = start;
+    for (int idx = 0; idx < mySize*2; idx++) {
+        if (ptr == crossingToFind)
+            return idx;
+        ptr = ptr->next;
+    }
+    
+    return -1;
+}
+
+int Knot::lengthOfSeg(Knot::Crossing* startCrossing, Knot::Crossing* endCrossing) {
+    int length = 1;
+    Crossing* tempPtr = startCrossing;
+    while (tempPtr!=endCrossing) {
+        length++;
+        tempPtr = tempPtr->next;
+    }
+    
+    return length;
+}
+
 //Insert a new crossing at an index
 //This ended up being unused but could be maybe useful in the future
 void Knot::insert(int index, int numValue) {
@@ -473,6 +499,132 @@ bool Knot::dummyRM2() {
     
     return false;
 }
+
+
+bool Knot::is1Tangle(Knot::Crossing* startCrossing,Knot::Crossing* endCrossing) {
+    Crossing* ptrA = startCrossing; //Probably just "start" unless we change something
+    Crossing* ptrB = endCrossing;
+    
+    
+    int idxOfA = findIndex(ptrA); //Probably 0
+    int idxOfB = findIndex(ptrB);
+    int negIdx;
+    
+    //Search to see if every crossing from A to B has its neg also in this range
+    while (ptrA!=ptrB->next) { //Search everything in range [A, B], inclusive
+        negIdx = findIndex(ptrA->neg);
+        if (!(negIdx >= idxOfA and negIdx <= idxOfB)) { //Check if neg in range
+            return false;
+        }
+        ptrA = ptrA->next;
+    }
+    return true;
+}
+
+bool Knot::remove1Tangles() {
+    bool didRemove1Tangles = false;
+    
+    //First remove 1-tangles for later reinsertion
+    //This is basically equivalent to sliding them all out of the way for other moves
+    Crossing* startCrossing = nullptr;
+    Crossing* endCrossing = nullptr;
+    if (remove1TanglesHelper(startCrossing, endCrossing)) {
+        didRemove1Tangles = true;
+        startCrossing1Tangle = startCrossing;
+        endCrossing1Tangle = endCrossing;
+    }
+    while (remove1TanglesHelper(startCrossing, endCrossing)) {
+        startCrossing1Tangle = startCrossing;
+        endCrossing1Tangle = endCrossing;
+    }
+    
+    
+    return didRemove1Tangles;
+}
+
+bool Knot::remove1TanglesHelper(Knot::Crossing*& startCrossing, Knot::Crossing*& endCrossing) {
+    if (mySize <= 6) {
+        return false;
+    }
+    
+    Crossing* origStart = startCrossing;
+    Crossing* origEnd = endCrossing;
+    
+    //For every crossing object in the knot
+    for (int idx = 0; idx < mySize*2; idx++) {
+        
+        //Start with length 6. Yes this looks dumb
+        endCrossing = start->next->next->next->next->next;
+        
+        
+        //Relevant 1-tangles that we want to pick out will never be less than
+        //6 crossing objects (3 crossings)
+        //and never more than half the size of the knot (mySize * 2)/2
+        for (int length = 6; length < mySize; length+=2) {
+            
+            startCrossing = start;
+            
+            if (is1Tangle(startCrossing, endCrossing)) {
+                
+                //Make start point to somewhere that will be in the knot
+                //After we remove the 1-tangle
+                endCrossing->next->prev = start->prev;
+                start = endCrossing->next;
+                
+                //decrease size of knot appropriately
+                mySize -= lengthOfSeg(startCrossing, endCrossing) / 2;
+                
+                //Perform detachment of 1-tangle
+                //Crossings still exist, but not in the knot loop
+                startCrossing->prev->next = endCrossing->next;
+                startCrossing->prev = nullptr;
+                endCrossing->next->prev = startCrossing->prev;
+                endCrossing->next = nullptr;
+                
+                if (origEnd != nullptr) {
+                    origEnd->next = startCrossing;
+                    startCrossing->prev = origEnd;
+                }
+                if (origStart != nullptr) {
+                    startCrossing = origStart;
+                }
+                return true;
+                
+            }
+        }
+        
+        //We're relocating start itself rather than a starting pointer due to indexing.
+        //If we did it the other way, we would have issues when a 1-tangle
+        //loops around the end to start.
+        start = start->next;
+    }
+    return false;
+}
+
+
+void Knot::reinsert1Tangles() {
+    if (startCrossing1Tangle == nullptr or endCrossing1Tangle == nullptr)
+        return;
+    
+    //If knot is empty, reinsertion is simple
+    if (mySize == 0) {
+        start = startCrossing1Tangle;
+        start->prev = endCrossing1Tangle;
+        endCrossing1Tangle->next = start;
+    }
+    
+    //Reconnect end of knot to beginning of 1-tangle
+    start->prev->next = startCrossing1Tangle;
+    startCrossing1Tangle->prev = start->prev;
+    
+    //Reconnect end of 1-tangle to beginning of knot
+    endCrossing1Tangle->next = start;
+    start->prev = endCrossing1Tangle;
+    
+    //Correct the length of the knot
+    mySize += lengthOfSeg(startCrossing1Tangle, endCrossing1Tangle) / 2;
+}
+
 
 bool Knot::tm2() {
 

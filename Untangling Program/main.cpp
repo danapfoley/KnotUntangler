@@ -46,6 +46,7 @@ bool Untangle(Knot &knot) {
     //To see if we ended up reducing at all
     int origSize = knot.size();
     
+    
     //While the knot is not the unknot
     while (knot.size()!=0) {
         
@@ -67,9 +68,16 @@ bool Untangle(Knot &knot) {
             continue;
         }
         
+        //If nothing else works, try dealing with 1-tangles
+        if (knot.remove1Tangles()) {
+            continue;
+        }
+        
         //Control only reaches here if knot is fully simplified and nontrivial
         break;
     }
+    
+    knot.reinsert1Tangles();
     
     //If untangling succeeded to at least some extent
     if (knot.size() < origSize)
@@ -86,26 +94,33 @@ int main() {
     
     dPrint(cout << "Debug mode ON" << endl;)
     
-    string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
+    //SuperCulprit
+    //string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
     
-    //Reduced version
+    //Reduced version of SuperCulprit
     //string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, 10, -11, 12, -13, -5, 15, 3, 17, -18, 9, 17, 22, 8, 23, -7, -2, -22, 18, 9, 10, 24, -25, 26, 6, -15, -4, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 23]";
     
     
+    //Twisted Trefoils
+    string knotString = "[1, -2, 3, 1, 2, 3, 4, -5, 6, -7, 5, 6, 7, 4]";
+    
+    
+    cout << "Knot: " << knotString << endl;
+    
     Knot knot(knotString);
     
-    dPrint(cout << "Knot after being created: " << knot << endl << endl;)
+    dPrint(cout << "Knot object after being created: " << knot << endl << endl;)
     
     Untangle(knot);
     
     cout << "Knot after being untangled: " << knot << endl << endl;
     
-    
-    //Get array from final knot for naming program
-    int * finalKnotArray = knot.toArray();
-    int knotLength = knot.size()*2; //size returns the number of crossings, and we need twice that for arrays
-    Name(finalKnotArray, knotLength);
-    
+//    
+//    //Get array from final knot for naming program
+//    int * finalKnotArray = knot.toArray();
+//    int knotLength = knot.size()*2; //size returns the number of crossings, and we need twice that for arrays
+//    Name(finalKnotArray, knotLength);
+//    
     
     test(runAllTests();)
     

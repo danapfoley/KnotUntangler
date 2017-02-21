@@ -3,7 +3,7 @@
 
 #include "Naming.h"
 
-#define knotDebug 1
+#define knotDebug 0
 
 #if knotDebug
 #define kPrint(x) x
@@ -77,8 +77,9 @@ public:
     
     bool dummyRM2();
     
+    bool remove1Tangles();
     
-    //void tm1();
+    void reinsert1Tangles();
     
     bool tm2();
     
@@ -92,13 +93,7 @@ public:
     
     
 private:
-    /*
-     * SUGGESTION: Even though you're only going to use the Crossing class
-     * within the Knot class, I think it's cleaner to put it in its own h/cpp
-     * files. That way when you read the interface to Knot you don't need to
-     * look at the Crossing interface as well, which you will never use outside
-     * of Knot.
-     */ 
+    
     class Crossing
     {
     public:
@@ -142,6 +137,9 @@ private:
     
     Crossing * find(int numToFind, int signOfNum);
     Crossing * find(int numToFindWithSign);
+    int findIndex(Crossing* crossingToFind);
+    
+    int lengthOfSeg(Crossing* startCrossing, Crossing* endCrossing);
     
     //Insert a crossing at a specified index. Not currently used
     void insert(int index, int numValue);
@@ -151,6 +149,10 @@ private:
     
     //Removes a given crossing based on a pointer to it
     void erase(Crossing* crossingA);
+    
+    bool is1Tangle(Crossing* startCrossing, Crossing* endCrossing);
+    
+    bool remove1TanglesHelper(Crossing*& startCrossing, Crossing*& endCrossing);
     
     bool turnTrace(Crossing* strandPtr, int strandLength, int side);
     
@@ -165,10 +167,13 @@ private:
     //Starting crossing of the knot
     //This is somewhat arbitrary
     //but we need one pointer to be our reference to the knot
-    Crossing * start;
+    Crossing* start;
     
     //Size of the knot. A knot with n crossings will have mySize of n/2
     int mySize;
+    
+    Crossing* startCrossing1Tangle;
+    Crossing* endCrossing1Tangle;
 
     
 };
