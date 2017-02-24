@@ -1,4 +1,18 @@
-
+//This file is a part of KnotUntangler
+//    Copyright (C) 2017  Dana Foley
+//
+//    KnotUntangler is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "Knot.h"
@@ -225,7 +239,7 @@ int * Knot::toArray() const{
 
 //Print out the knot
 void Knot::display(ostream & out) const{
-    string outputString = this->toGaussString();
+    string outputString = this->toExtGaussString();
     //string outputString = this->toExtGaussString();
     out << outputString;
 }
@@ -528,12 +542,8 @@ bool Knot::remove1Tangles() {
     //This is basically equivalent to sliding them all out of the way for other moves
     Crossing* startCrossing = nullptr;
     Crossing* endCrossing = nullptr;
-    if (remove1TanglesHelper(startCrossing, endCrossing)) {
-        didRemove1Tangles = true;
-        startCrossing1Tangle = startCrossing;
-        endCrossing1Tangle = endCrossing;
-    }
     while (remove1TanglesHelper(startCrossing, endCrossing)) {
+        didRemove1Tangles = true;
         startCrossing1Tangle = startCrossing;
         endCrossing1Tangle = endCrossing;
     }
@@ -627,36 +637,59 @@ void Knot::reinsert1Tangles() {
 
 
 bool Knot::tm2() {
+    
+    Knot origKnot(*this);
+    
+    vector<string> triedDiagrams;
+    string currentKnotString;
+    triedDiagrams.push_back(this->toExtGaussString());
 
     int maxStrandLength = getLongestStrandLength();
     
     int numStrandsForArray = 0;
     
     int* strandArray = new int[mySize];
+
     
-    for (int strandLength = maxStrandLength; strandLength >= 2; strandLength--) {
-        for (int i = 0; i < mySize; i++) {
-            strandArray[i] = 0;
-        }
-        findStrandsOfLength(strandLength, strandArray, numStrandsForArray);
+    vector<string>::iterator vectorIt = triedDiagrams.begin();
+    while (vectorIt < triedDiagrams.end()) {
         
-        kPrint(cout << "Length: " << strandLength << endl;)
+        currentKnotString = *vectorIt;
         
-        for (int idx = 0; idx < numStrandsForArray; idx++) {
-            kPrint(cout << "strandArray[" << idx << "]: " << strandArray[idx] << endl;)
-            if (turnTrace(find(strandArray[idx]), strandLength, 1)
-                or turnTrace(find(strandArray[idx]), strandLength, -1)) {
-                delete [] strandArray;
-                return true;
+        cout << "Trying on " << currentKnotString << endl;
+        *this = Knot(currentKnotString);
+        for (int strandLength = maxStrandLength; strandLength >= 2; strandLength--) {
+            for (int i = 0; i < mySize; i++) {
+                strandArray[i] = 0;
+            }
+            findStrandsOfLength(strandLength, strandArray, numStrandsForArray);
+            
+            kPrint(cout << "Length: " << strandLength << endl;)
+            
+            for (int idx = 0; idx < numStrandsForArray; idx++) {
+                kPrint(cout << "strandArray[" << idx << "]: " << strandArray[idx] << endl;)
+                
+                if(turnTrace(find(strandArray[idx]), strandLength, 1, triedDiagrams)) {
+                    delete [] strandArray;
+                    return true;
+                }
+                
+                if(turnTrace(find(strandArray[idx]), strandLength, -1, triedDiagrams)) {
+                    delete [] strandArray;
+                    return true;
+                }
             }
         }
+        
+        vectorIt++;
     }
     
+    *this = origKnot;
     delete [] strandArray;
     return false;
 }
 
-bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
+bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vector<string>& triedDiagrams) {
     
     Knot knotNoMovement(*this);
     
@@ -715,6 +748,8 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     }
     int pathLength = 0;
     
+    int origDirection = direction;
+    
     int dummyDirection = direction;
     if (turnTraceHelper(startCrossing->turnLeft(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections, dummyDirection)) {
         
@@ -746,6 +781,10 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
         
         //Move the strand over the tangle. Very important
         //Start by tracing through the path crossings and find intersections
+        
+        if (pathLength == 3 and pathArray[0]->num == 9) {
+            cout << "";
+        }
         
         for (int i = 0; i <= pathLength - 1; i++) {
             
@@ -780,8 +819,8 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
                     turnLeftCrossing->next = strandArray[strandIndex]->neg;
                     strandArray[strandIndex]->neg->prev = turnLeftCrossing;
                     
-                    strandArray[strandIndex]->handedness = -1 * direction * strandArray[strandIndex]->sign;
-                    strandArray[strandIndex]->neg->handedness = -1 * direction * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->handedness = -1 * origDirection * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->neg->handedness = -1 * origDirection * strandArray[strandIndex]->sign;
                 }
                 //If turnLeftCrossing is facing away from tempPtr
                 else { //if (turnLeftCrossing->prev == tempPtr->neg)
@@ -792,8 +831,8 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
                     turnLeftCrossing->prev = strandArray[strandIndex]->neg;
                     strandArray[strandIndex]->neg->next = turnLeftCrossing;
                     
-                    strandArray[strandIndex]->handedness = direction * strandArray[strandIndex]->sign;
-                    strandArray[strandIndex]->neg->handedness = direction * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->handedness = origDirection * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->neg->handedness = origDirection * strandArray[strandIndex]->sign;
                 }
                 
                 strandIndex++;
@@ -825,8 +864,8 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
                     goStraightCrossing->next = strandArray[strandIndex]->neg;
                     strandArray[strandIndex]->neg->prev = goStraightCrossing;
                     
-                    strandArray[strandIndex]->handedness = -1 * direction * strandArray[strandIndex]->sign;
-                    strandArray[strandIndex]->neg->handedness = -1 * direction * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->handedness = -1 * origDirection * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->neg->handedness = -1 * origDirection * strandArray[strandIndex]->sign;
                 }
                 //If goStraightCrossing is facing away from tempPtr
                 else { //if (goStraightCrossing->prev == tempPtr->neg)
@@ -837,8 +876,8 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
                     goStraightCrossing->prev = strandArray[strandIndex]->neg;
                     strandArray[strandIndex]->neg->next = goStraightCrossing;
                     
-                    strandArray[strandIndex]->handedness = direction * strandArray[strandIndex]->sign;
-                    strandArray[strandIndex]->neg->handedness = direction * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->handedness = origDirection * strandArray[strandIndex]->sign;
+                    strandArray[strandIndex]->neg->handedness = origDirection * strandArray[strandIndex]->sign;
                 }
                 
                 tempPtr = tempPtr->turnRight(direction);
@@ -856,14 +895,20 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side) {
     delete [] strandArray;
     delete [] pathArray;
     
+    
     if (dummyRM1() or dummyRM2()) {
         return true;
     }
-    else {
-        //cout << "TM2 failed: " << *this << endl;
-        *this = knotNoMovement;
-        return false;
+    
+    string endKnotString = this->toExtGaussString();
+    if (!isInVector<string>(triedDiagrams, endKnotString)) {
+        cout << "Inserting into vector: " << endKnotString << endl;
+        triedDiagrams.push_back(endKnotString);
     }
+    
+    
+    *this = knotNoMovement;
+    return false;
     
 }
 

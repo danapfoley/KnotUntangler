@@ -1,10 +1,19 @@
-//
-//  main.cpp
-//  Untangling Program
-//
-//  Created by Dana Foley on 9/14/16.
-//  Copyright © 2016 Dana Foley. All rights reserved.
-//
+//This file is a part of KnotUntangler
+//    Copyright (C) 2017  Dana Foley
+//    
+//    KnotUntangler is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//    
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//        
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 
 #include "Knot.h"
@@ -95,14 +104,18 @@ int main() {
     dPrint(cout << "Debug mode ON" << endl;)
     
     //SuperCulprit
-    //string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
+    string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
     
     //Reduced version of SuperCulprit
     //string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, 10, -11, 12, -13, -5, 15, 3, 17, -18, 9, 17, 22, 8, 23, -7, -2, -22, 18, 9, 10, 24, -25, 26, 6, -15, -4, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 23]";
     
     
     //Twisted Trefoils
-    string knotString = "[1, -2, 3, 1, 2, 3, 4, -5, 6, -7, 5, 6, 7, 4]";
+    //string knotString = "[1, -2, 3, 1, 2, 3, 4, -5, 6, -7, 5, 6, 7, 4]";
+    
+    //Thislethwaite unknot
+    //string knotString =
+    //"[1, 2, -3, 4, 5, -6, -7, 8, -9, 10, -11, -5, 12, 1, -6, 13, -10, -14, -4, 15, 2, -9, -8, -7, 13, 11, 14, 3, 15, 12]";
     
     
     cout << "Knot: " << knotString << endl;
