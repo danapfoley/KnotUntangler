@@ -649,15 +649,23 @@ bool Knot::tm2() {
     int numStrandsForArray = 0;
     
     int* strandArray = new int[mySize];
+    
+    int vectorIdx;
 
     
     vector<string>::iterator vectorIt = triedDiagrams.begin();
     while (vectorIt < triedDiagrams.end()) {
         
+        vectorIdx = int(vectorIt - triedDiagrams.begin());
+        cout << "Trying on [" << vectorIdx << "] " << flush;
+        
         currentKnotString = *vectorIt;
         
-        cout << "Trying on " << currentKnotString << endl;
+        cout << currentKnotString << endl;
+        
+        
         *this = Knot(currentKnotString);
+        
         for (int strandLength = maxStrandLength; strandLength >= 2; strandLength--) {
             for (int i = 0; i < mySize; i++) {
                 strandArray[i] = 0;
@@ -681,7 +689,7 @@ bool Knot::tm2() {
             }
         }
         
-        vectorIt++;
+        vectorIt = triedDiagrams.begin() + vectorIdx + 18;
     }
     
     *this = origKnot;
@@ -782,7 +790,7 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
         //Move the strand over the tangle. Very important
         //Start by tracing through the path crossings and find intersections
         
-        if (pathLength == 3 and pathArray[0]->num == 9) {
+        if (pathLength == 1 and pathArray[0]->num == 7) {
             cout << "";
         }
         
@@ -824,7 +832,7 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
                 }
                 //If turnLeftCrossing is facing away from tempPtr
                 else { //if (turnLeftCrossing->prev == tempPtr->neg)
-                    
+
                     turnLeftCrossing->prev->next = strandArray[strandIndex]->neg;
                     strandArray[strandIndex]->neg->prev = turnLeftCrossing->prev;
                     
@@ -856,8 +864,8 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
                 
                 Crossing* goStraightCrossing = tempPtr->advance(direction);
                 //If goStraightCrossing is facing into tempPtr (thus the "next")
-                if (goStraightCrossing->next == tempPtr->neg) {
-                    
+                if (goStraightCrossing->next == tempPtr) {
+//THIS MIGHT BE WRONG ^^^
                     goStraightCrossing->next->prev = strandArray[strandIndex]->neg;
                     strandArray[strandIndex]->neg->next = goStraightCrossing->next;
                     
