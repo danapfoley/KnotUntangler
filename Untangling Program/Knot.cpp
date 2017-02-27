@@ -20,6 +20,12 @@
 
 //Construct a knot from an array of numbers
 Knot::Knot(int extGauss[], int knotLength) {
+    //We need to assign these so constructFromGauss doesn't try to run deconstruct()
+    mySize = 0;
+    start = nullptr;
+    startCrossing1Tangle = nullptr;
+    endCrossing1Tangle = nullptr;
+    
     constructFromGauss(extGauss, knotLength);
 }
 
@@ -167,7 +173,7 @@ string Knot::toGaussString() const{
     Crossing * ptr = start;
     string outputString = "[";
     
-    
+    //As long as the knot has crossings, we can print them
     if (ptr!=nullptr) {
         do {
             outputString += to_string((ptr->num)*(ptr->sign));
@@ -229,7 +235,7 @@ string Knot::toExtGaussString() const{
 }
 
 //Return the knot as an Extended Gauss Code array
-int * Knot::toArray() const{
+int* Knot::toArray() const{
     //Honestly the easiest way to do this
     //is just to turn it into a string and use getInput
     int knotLength = 0;
@@ -240,7 +246,6 @@ int * Knot::toArray() const{
 //Print out the knot
 void Knot::display(ostream & out) const{
     string outputString = this->toExtGaussString();
-    //string outputString = this->toExtGaussString();
     out << outputString;
 }
 
@@ -271,6 +276,7 @@ Knot::Crossing * Knot::find(int numToFindWithSign) {
     return find(abs(numToFindWithSign), getSign(numToFindWithSign));
 }
 
+//Find the index of a crossing with respect to start
 int Knot::findIndex(Knot::Crossing* crossingToFind) {
     Crossing* ptr = start;
     for (int idx = 0; idx < mySize*2; idx++) {
@@ -282,6 +288,7 @@ int Knot::findIndex(Knot::Crossing* crossingToFind) {
     return -1;
 }
 
+//Get the length of a segment from startCrossing to endCrossing, inclusive
 int Knot::lengthOfSeg(Knot::Crossing* startCrossing, Knot::Crossing* endCrossing) {
     int length = 1;
     Crossing* tempPtr = startCrossing;
@@ -467,7 +474,7 @@ bool Knot::rm1() {
     return false;
 }
 
-
+//Reduction Move 2
 bool Knot::rm2() {
     Crossing * ptrA=start;
     Crossing * ptrB;
@@ -514,7 +521,7 @@ bool Knot::dummyRM2() {
     return false;
 }
 
-
+//See if current strand, bounded by start/endCrossing, is a complete 1-tangle
 bool Knot::is1Tangle(Knot::Crossing* startCrossing,Knot::Crossing* endCrossing) {
     Crossing* ptrA = startCrossing; //Probably just "start" unless we change something
     Crossing* ptrB = endCrossing;
@@ -535,6 +542,8 @@ bool Knot::is1Tangle(Knot::Crossing* startCrossing,Knot::Crossing* endCrossing) 
     return true;
 }
 
+//Remove all 1-tangles from a knot
+//Returns true if anything is removed, false otherwise
 bool Knot::remove1Tangles() {
     bool didRemove1Tangles = false;
     
@@ -542,6 +551,7 @@ bool Knot::remove1Tangles() {
     //This is basically equivalent to sliding them all out of the way for other moves
     Crossing* startCrossing = nullptr;
     Crossing* endCrossing = nullptr;
+    //While we can successfully keep removing 1-tangles
     while (remove1TanglesHelper(startCrossing, endCrossing)) {
         didRemove1Tangles = true;
         startCrossing1Tangle = startCrossing;
@@ -552,6 +562,8 @@ bool Knot::remove1Tangles() {
     return didRemove1Tangles;
 }
 
+//Utility for removing a single 1-tangle
+//Called many times by remove1Tangles in order to get them all
 bool Knot::remove1TanglesHelper(Knot::Crossing*& startCrossing, Knot::Crossing*& endCrossing) {
     if (mySize <= 6) {
         return false;
@@ -563,7 +575,7 @@ bool Knot::remove1TanglesHelper(Knot::Crossing*& startCrossing, Knot::Crossing*&
     //For every crossing object in the knot
     for (int idx = 0; idx < mySize*2; idx++) {
         
-        //Start with length 6. Yes this looks dumb
+        //Start with length 6. Yes, 5 'next's looks dumb
         endCrossing = start->next->next->next->next->next;
         
         
@@ -574,6 +586,7 @@ bool Knot::remove1TanglesHelper(Knot::Crossing*& startCrossing, Knot::Crossing*&
             
             startCrossing = start;
             
+            //If current segment is a 1-tangle
             if (is1Tangle(startCrossing, endCrossing)) {
                 
                 //Make start point to somewhere that will be in the knot
@@ -601,6 +614,8 @@ bool Knot::remove1TanglesHelper(Knot::Crossing*& startCrossing, Knot::Crossing*&
                 return true;
                 
             }
+            
+            endCrossing = endCrossing->next;
         }
         
         //We're relocating start itself rather than a starting pointer due to indexing.
@@ -611,7 +626,7 @@ bool Knot::remove1TanglesHelper(Knot::Crossing*& startCrossing, Knot::Crossing*&
     return false;
 }
 
-
+//Reinserts all 1-tangles at once back into the knot
 void Knot::reinsert1Tangles() {
     if (startCrossing1Tangle == nullptr or endCrossing1Tangle == nullptr)
         return;
@@ -635,13 +650,17 @@ void Knot::reinsert1Tangles() {
     mySize += lengthOfSeg(startCrossing1Tangle, endCrossing1Tangle) / 2;
 }
 
-
+//Translation Move 2
 bool Knot::tm2() {
     
     Knot origKnot(*this);
     
+    //List of diagrams of the knot
+        //that have been moved to and examined already
     vector<string> triedDiagrams;
     string currentKnotString;
+    
+    //Since we have already examined the starting form
     triedDiagrams.push_back(this->toExtGaussString());
 
     int maxStrandLength = getLongestStrandLength();
@@ -652,19 +671,25 @@ bool Knot::tm2() {
     
     int vectorIdx;
 
-    
+    //We iterate through all possible diagram forms
     vector<string>::iterator vectorIt = triedDiagrams.begin();
     while (vectorIt < triedDiagrams.end()) {
         
+        //We must store the index of the iterator
+            //So it can be recalculated later
+        //We cannot hang onto the iterator, because
+            //turnTrace may call push_back(),
+            //Which invalidates the iterator
         vectorIdx = int(vectorIt - triedDiagrams.begin());
-        cout << "Trying on [" << vectorIdx << "] " << flush;
         
+        kPrint(cout << "Operating on [" << vectorIdx << "] ";)
+        
+        //Retrieve current knot string and treat it as the current knot
         currentKnotString = *vectorIt;
-        
-        cout << currentKnotString << endl;
-        
-        
         *this = Knot(currentKnotString);
+        
+        kPrint(cout << currentKnotString << endl;)
+        
         
         for (int strandLength = maxStrandLength; strandLength >= 2; strandLength--) {
             for (int i = 0; i < mySize; i++) {
@@ -677,6 +702,9 @@ bool Knot::tm2() {
             for (int idx = 0; idx < numStrandsForArray; idx++) {
                 kPrint(cout << "strandArray[" << idx << "]: " << strandArray[idx] << endl;)
                 
+                //Try turnTrace on both sides.
+                //If either one returns true, we can stop doing any further work
+                    //Because that would mean that a reduction is possible
                 if(turnTrace(find(strandArray[idx]), strandLength, 1, triedDiagrams)) {
                     delete [] strandArray;
                     return true;
@@ -689,7 +717,8 @@ bool Knot::tm2() {
             }
         }
         
-        vectorIt = triedDiagrams.begin() + vectorIdx + 18;
+        //Re-establish the vector iterator and advance it by 1
+        vectorIt = triedDiagrams.begin() + vectorIdx + 1;
     }
     
     *this = origKnot;
@@ -730,7 +759,7 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
         exit(1);
     }
     
-    
+    //Establish strand array based on side
     if (side == 1) {
         for (int i = strandLength - 1; i >= 0; i--) {
             strandArray[i] = strandPtr;
@@ -790,9 +819,6 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
         //Move the strand over the tangle. Very important
         //Start by tracing through the path crossings and find intersections
         
-        if (pathLength == 1 and pathArray[0]->num == 7) {
-            cout << "";
-        }
         
         for (int i = 0; i <= pathLength - 1; i++) {
             
@@ -865,7 +891,7 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
                 Crossing* goStraightCrossing = tempPtr->advance(direction);
                 //If goStraightCrossing is facing into tempPtr (thus the "next")
                 if (goStraightCrossing->next == tempPtr) {
-//THIS MIGHT BE WRONG ^^^
+
                     goStraightCrossing->next->prev = strandArray[strandIndex]->neg;
                     strandArray[strandIndex]->neg->next = goStraightCrossing->next;
                     
@@ -910,7 +936,7 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
     
     string endKnotString = this->toExtGaussString();
     if (!isInVector<string>(triedDiagrams, endKnotString)) {
-        cout << "Inserting into vector: " << endKnotString << endl;
+        kPrint(cout << "Knot form found: " << endKnotString << endl;)
         triedDiagrams.push_back(endKnotString);
     }
     

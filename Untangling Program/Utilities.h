@@ -31,14 +31,12 @@ int* getInput(string knotString, int &knotLength);
 
 template <class type>
 int index_of(type array[], int sizeOfArray, type item) {
-    int index = -1;
     for (int i=0; i<sizeOfArray; i++) {
         if (array[i] == item) {
-            index = i;
-            break;
+            return i;
         }
     }
-    return index;
+    return -1;
 }
 
 int index_of_abs(int * array, int sizeOfArray, int item);

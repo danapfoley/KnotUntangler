@@ -25,6 +25,7 @@ int getSign(int num) {
     return abs(num)/num;
 }
 
+//Turns a knot string into an array for further processing
 int* getInput(string knotString, int &knotLength) {
     int * extGauss = new int[1];
     //cout << "Enter knot to untangle: ";
@@ -61,16 +62,14 @@ int* getInput(string knotString, int &knotLength) {
 //Find the index of an item in an array whose abs. value matches
     //the abs. value of the item to find
 int index_of_abs(int array[], int sizeOfArray, int item) {
-    int index = -1;
     
     for (int i=0; i<sizeOfArray; i++) {
         if (abs(array[i]) == abs(item)) {
-            index = i;
-            break;
+            return i;
         }
     }
     
-    return index;
+    return -1;
 }
 
 //Simple swap for two items in an array

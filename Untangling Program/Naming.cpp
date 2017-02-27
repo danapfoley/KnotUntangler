@@ -1,6 +1,3 @@
-//
-//  Naming.cpp
-//  Untangling Program
 //This file is a part of KnotUntangler
 //    Copyright (C) 2017  Dana Foley
 //
