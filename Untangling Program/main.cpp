@@ -114,10 +114,10 @@ int main() {
     //string knotString = "[1, -2, 3, 1, 2, 3, 4, -5, 6, -7, 5, 6, 7, 4]";
     
     //Thislethwaite unknot
-    //string knotString = "[1, 2, -3, 4, 5, -6, -7, 8, -9, 10, -11, -5, 12, 1, -6, 13, -10, -14, -4, 15, 2, -9, -8, -7, 13, 11, 14, 3, 15, 12]";
+    string knotString = "[1, 2, -3, 4, 5, -6, -7, 8, -9, 10, -11, -5, 12, 1, -6, 13, -10, -14, -4, 15, 2, -9, -8, -7, 13, 11, 14, 3, 15, 12]";
     
     //Hard unknot from Fig 24 of Louis H. Kauffman and Sofia Lambropoulou's Hard Unknots and Collapsing Tangles
-    string knotString = "[1, -2, 3, -4, 5, 1, -6, 7, -8, 9, 2, 3, 4, 5, -9, -6, -7, -8]";
+    //string knotString = "[1, -2, 3, -4, 5, 1, -6, 7, -8, 9, 2, 3, 4, 5, -9, -6, -7, -8]";
     
     cout << "Knot: " << knotString << endl;
     
@@ -137,7 +137,6 @@ int main() {
 //    
     
     test(runAllTests();)
-    
     
     return 0;
 }

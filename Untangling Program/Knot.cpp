@@ -993,7 +993,7 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     //If we:
     //1. Ended up at the proper end crossing
     //2. Encountered the end crossing from the right direction
-    //2. Crossed the right number of strands along the way
+    //3. Crossed the right number of strands along the way
     //Then return success
     if (boolAtEnd and boolRightDir and boolRightNumIntsx) {
         kPrint(cout << "Found tangle" << endl;)
