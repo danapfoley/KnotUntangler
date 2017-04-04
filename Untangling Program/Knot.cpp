@@ -651,7 +651,7 @@ void Knot::reinsert1Tangles() {
 }
 
 //Translation Move 2
-bool Knot::tm2() {
+bool Knot::TM() {
     
     Knot origKnot(*this);
     

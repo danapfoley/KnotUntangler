@@ -18,6 +18,7 @@
 
 #include "Knot.h"
 
+#define KnotListFilePath "KnotList.txt"
 
 //Set to 1 to print out basic debug info during execution
 #define Debug 1
@@ -72,7 +73,7 @@ bool Untangle(Knot &knot) {
         //Try translations
         //tm2 internally tests for potential success
         
-        if (knot.tm2()) {
+        if (knot.TM()) {
             dPrint(cout << "TM2 performed: " << knot << endl;)
             continue;
         }
@@ -103,21 +104,52 @@ int main() {
     
     dPrint(cout << "Debug mode ON" << endl;)
     
-    //SuperCulprit
-    //string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
+    //Default knot is Soulié knot in case file can't be read
+    string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
     
-    //Reduced version of SuperCulprit
-    //string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, 10, -11, 12, -13, -5, 15, 3, 17, -18, 9, 17, 22, 8, 23, -7, -2, -22, 18, 9, 10, 24, -25, 26, 6, -15, -4, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 23]";
-    
-    
-    //Twisted Trefoils
-    //string knotString = "[1, -2, 3, 1, 2, 3, 4, -5, 6, -7, 5, 6, 7, 4]";
-    
-    //Thislethwaite unknot
-    string knotString = "[1, 2, -3, 4, 5, -6, -7, 8, -9, 10, -11, -5, 12, 1, -6, 13, -10, -14, -4, 15, 2, -9, -8, -7, 13, 11, 14, 3, 15, 12]";
-    
-    //Hard unknot from Fig 24 of Louis H. Kauffman and Sofia Lambropoulou's Hard Unknots and Collapsing Tangles
-    //string knotString = "[1, -2, 3, -4, 5, 1, -6, 7, -8, 9, 2, 3, 4, 5, -9, -6, -7, -8]";
+    vector<string> knotList;
+    string line;
+    ifstream knotFile (KnotListFilePath);
+    if (knotFile.is_open())
+    {
+        int choiceNumber = -1;
+        int optionNumber = 1;
+        int counter = 1;
+        
+        cout << "0: Enter your own knot" << endl;
+        
+        while ( knotFile.good() )
+        {
+            getline (knotFile,line);
+            if (line == "") continue;
+            
+            if (counter % 2 == 1) {
+                cout << optionNumber << ": " << line << endl;
+                optionNumber++;
+            }
+            else
+                knotList.push_back(line);
+            counter++;
+        }
+        knotFile.close();
+        
+        cout << endl << "Choose a knot to untangle, or input 0 to enter your own knot: ";
+        
+        while (choiceNumber < 0 or choiceNumber > optionNumber)
+            cin >> choiceNumber;
+        
+        if (choiceNumber == 0) {
+            cout << "Enter an Extended Gauss Code list (Ex: [1, -2, 3, 1, 2, 3]): ";
+            cin.ignore();
+            getline(cin, knotString);
+        }
+        else
+            knotString = knotList.at(choiceNumber - 1);
+        
+    }
+    else
+        cout << "Unable to open file" << endl;
+
     
     cout << "Knot: " << knotString << endl;
     
@@ -236,7 +268,7 @@ int executeTM2Test() {
     
     Knot knot(knotStringExt);
     
-    knot.tm2();
+    knot.TM();
     
     if (knot.toGaussString() != expectedResultExt) {
         cout << "Executing tm2 FAILED" << endl;

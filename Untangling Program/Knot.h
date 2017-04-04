@@ -107,7 +107,7 @@ public:
     
     //Returns true if any possible configuration of the knot
         //at current complexity can be simplified
-    bool tm2();
+    bool TM();
     
     //Removes all 1-tangles from the knot, keeping track of them
         //to be reinserted later
