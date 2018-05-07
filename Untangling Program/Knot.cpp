@@ -156,7 +156,7 @@ Knot::~Knot() {
 
 //Delete all crossings from the knot
 void Knot::deconstruct() {
-    if (start != nullptr and mySize != 0) {
+    if (start != nullptr && mySize != 0) {
         start->prev->next=nullptr;
         Crossing * temp = start;
         while (temp!= nullptr) {
@@ -261,7 +261,7 @@ Knot::Crossing * Knot::find(int numToFind, int signOfNum) {
     numToFind = abs(numToFind);
     
     do {
-        if (nPtr->num == numToFind and nPtr->sign == signOfNum) {
+        if (nPtr->num == numToFind && nPtr->sign == signOfNum) {
             return nPtr;
         }
         nPtr = nPtr->next;
@@ -311,7 +311,7 @@ void Knot::insert(int index, int numValue) {
         start=nPtr;
         mySize++;
     }
-    else if(index>0 and index<=mySize) {
+    else if(index>0 && index<=mySize) {
         Crossing * predPtr;
         predPtr = new(nothrow) Crossing(0);
         predPtr->next=start;
@@ -481,7 +481,7 @@ bool Knot::rm2() {
     
     do {
         ptrB=ptrA->next;
-        if (ptrA->sign==ptrB->sign and (ptrA->neg->next==ptrB->neg or ptrA->neg->prev==ptrB->neg)) {
+        if (ptrA->sign==ptrB->sign && (ptrA->neg->next==ptrB->neg || ptrA->neg->prev==ptrB->neg)) {
             erase(ptrA);
             erase(ptrB);
             return true;
@@ -513,7 +513,7 @@ bool Knot::dummyRM2() {
     
     do {
         ptrB=ptrA->next;
-        if (ptrA->sign==ptrB->sign and (ptrA->neg->next==ptrB->neg or ptrA->neg->prev==ptrB->neg))
+        if (ptrA->sign==ptrB->sign && (ptrA->neg->next==ptrB->neg || ptrA->neg->prev==ptrB->neg))
             return true;
         ptrA=ptrA->next;
     } while (ptrA!=start);
@@ -534,7 +534,7 @@ bool Knot::is1Tangle(Knot::Crossing* startCrossing,Knot::Crossing* endCrossing) 
     //Search to see if every crossing from A to B has its neg also in this range
     while (ptrA!=ptrB->next) { //Search everything in range [A, B], inclusive
         negIdx = findIndex(ptrA->neg);
-        if (!(negIdx >= idxOfA and negIdx <= idxOfB)) { //Check if neg in range
+        if (!(negIdx >= idxOfA && negIdx <= idxOfB)) { //Check if neg in range
             return false;
         }
         ptrA = ptrA->next;
@@ -628,7 +628,7 @@ bool Knot::remove1TanglesHelper(Knot::Crossing*& startCrossing, Knot::Crossing*&
 
 //Reinserts all 1-tangles at once back into the knot
 void Knot::reinsert1Tangles() {
-    if (startCrossing1Tangle == nullptr or endCrossing1Tangle == nullptr)
+    if (startCrossing1Tangle == nullptr || endCrossing1Tangle == nullptr)
         return;
     
     //If knot is empty, reinsertion is simple
@@ -825,17 +825,17 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
             
             //If we turned left at a crossing, nothing to do; move on
             if (tempPtr->dummyTurnLeft(direction) == pathArray[i+1]
-                or tempPtr->dummyTurnLeft(direction)->num == endCrossing->num) {
+                || tempPtr->dummyTurnLeft(direction)->num == endCrossing->num) {
                 
                 tempPtr = tempPtr->turnLeft(direction);
                 continue;
             }
             
-            //If we went straight or right, we have at least one crossing to relocate
+            //If we went straight || right, we have at least one crossing to relocate
             if (tempPtr->advance(direction) == pathArray[i+1]
-                or tempPtr->advance(direction)->num == endCrossing->num
-                or tempPtr->dummyTurnRight(direction) == pathArray[i+1]
-                or tempPtr->dummyTurnRight(direction)->num == endCrossing->num) {
+                || tempPtr->advance(direction)->num == endCrossing->num
+                || tempPtr->dummyTurnRight(direction) == pathArray[i+1]
+                || tempPtr->dummyTurnRight(direction)->num == endCrossing->num) {
                 
                 //Detach old crossing location
                 strandArray[strandIndex]->neg->prev->next = strandArray[strandIndex]->neg->next;
@@ -875,14 +875,14 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
             
             //If we went straight, move on
             if (tempPtr->advance(direction) == pathArray[i+1]
-                or tempPtr->advance(direction)->num == endCrossing->num) {
+                || tempPtr->advance(direction)->num == endCrossing->num) {
                 tempPtr = tempPtr->advance(direction);
                 continue;
             }
             
             //If we went right, we have one more crossing to relocate
             if (tempPtr->dummyTurnRight(direction) == pathArray[i+1]
-                or tempPtr->dummyTurnRight(direction)->num == endCrossing->num) {
+                || tempPtr->dummyTurnRight(direction)->num == endCrossing->num) {
                 
                 //Detach old crossing location
                 strandArray[strandIndex]->neg->prev->next = strandArray[strandIndex]->neg->next;
@@ -930,7 +930,7 @@ bool Knot::turnTrace(Knot::Crossing* strandPtr, int strandLength, int side, vect
     delete [] pathArray;
     
     
-    if (dummyRM1() or dummyRM2()) {
+    if (dummyRM1() || dummyRM2()) {
         return true;
     }
     
@@ -971,7 +971,7 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     bool boolRightDir = index_of(strandArray, strandLength, currentCrossing->turnRight(dummyDirection)) > -1;
     
     //currentCrossing hit a crossing it has already encountered
-    bool boolLoopedBack = index_of(pathArray, pathLength, currentCrossing) > -1 or index_of(pathArray, pathLength, currentCrossing->neg) > -1;
+    bool boolLoopedBack = index_of(pathArray, pathLength, currentCrossing) > -1 || index_of(pathArray, pathLength, currentCrossing->neg) > -1;
     
     //correct number of intersections
     bool boolRightNumIntsx = numIntersections == strandLength;
@@ -979,7 +979,7 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     
     
     //If we hit a stop condition
-    if ((boolInStrand and !boolAtEnd) or (boolAtEnd and !boolRightDir) or (boolHitRightEndpt) or (boolLoopedBack)) {
+    if ((boolInStrand && !boolAtEnd) || (boolAtEnd && !boolRightDir) || (boolHitRightEndpt) || (boolLoopedBack)) {
         //cout << "Returned false at A" << endl;
         return false;
     }
@@ -995,7 +995,7 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     //2. Encountered the end crossing from the right direction
     //3. Crossed the right number of strands along the way
     //Then return success
-    if (boolAtEnd and boolRightDir and boolRightNumIntsx) {
+    if (boolAtEnd && boolRightDir && boolRightNumIntsx) {
         kPrint(cout << "Found tangle" << endl;)
         return true;
     }
@@ -1015,7 +1015,7 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     //Try turning right
     dummyDirection = direction;
 //    cout << indentString << "Trying to turn right at: " << currentCrossing->num << endl;
-    if (numIntersections + 2 <= strandLength and turnTraceHelper(currentCrossing->turnRight(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 2, dummyDirection)) {
+    if (numIntersections + 2 <= strandLength && turnTraceHelper(currentCrossing->turnRight(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 2, dummyDirection)) {
         
         
         return true;
@@ -1023,14 +1023,14 @@ bool Knot::turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, in
     //Try going straight
     dummyDirection = direction;
 //    cout << indentString << "Trying to go straight at: " << currentCrossing->num << endl;
-    if (numIntersections + 1 <= strandLength and turnTraceHelper(currentCrossing->advance(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 1, dummyDirection)) {
+    if (numIntersections + 1 <= strandLength && turnTraceHelper(currentCrossing->advance(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 1, dummyDirection)) {
         
         return true;
     }
     //Try turning left
     dummyDirection = direction;
 //    cout << indentString << "Trying to turn left at: " << currentCrossing->num << endl;
-    if (numIntersections + 0 <= strandLength and turnTraceHelper(currentCrossing->turnLeft(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 0, dummyDirection)) {
+    if (numIntersections + 0 <= strandLength && turnTraceHelper(currentCrossing->turnLeft(dummyDirection), strandArray, strandLength, pathArray, pathLength, numIntersections + 0, dummyDirection)) {
         
         return true;
     }

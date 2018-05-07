@@ -24,7 +24,7 @@ void flip(int extGauss[], int knotLength) {
 }
 
 void reNumber(int extGauss[], int knotLength) {
-    int temp[knotLength];
+    int* temp = new int[knotLength];
     int crossingNumIterator = 1;
     int negativeIndex;
     
@@ -47,6 +47,7 @@ void reNumber(int extGauss[], int knotLength) {
     //Put values of temp back into extGauss
     for (int i=0; i<knotLength; i++)
         extGauss[i] = temp[i];
+    delete[] temp;
 }
 
 void Name(int extGauss[], int knotLength) {

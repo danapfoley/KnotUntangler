@@ -135,7 +135,7 @@ int main() {
         
         cout << endl << "Choose a knot to untangle, or input 0 to enter your own knot: ";
         
-        while (choiceNumber < 0 or choiceNumber > optionNumber)
+        while (choiceNumber < 0 || choiceNumber > optionNumber)
             cin >> choiceNumber;
         
         if (choiceNumber == 0) {
@@ -169,6 +169,9 @@ int main() {
 //    
     
     test(runAllTests();)
+
+    cin.get();
+    cin.get();
     
     return 0;
 }
