@@ -19,7 +19,7 @@
 
 
 //Construct a knot from an array of numbers
-Knot::Knot(vector<int>& extGauss) {
+Knot::Knot(vector<int> extGauss) {
     //We need to assign these so constructFromGauss doesn't try to run deconstruct()
     mySize = 0;
     start = nullptr;
@@ -72,7 +72,7 @@ Knot Knot::move(Knot& origKnot) {
 }
 
 //Construct a knot from an Extended Gauss Code vector
-void Knot::constructFromGauss(vector<int>& extGauss) {
+void Knot::constructFromGauss(vector<int> extGauss) {
     deconstruct();
     //Create new blank crossing to begin with
 

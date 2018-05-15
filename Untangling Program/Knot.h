@@ -46,7 +46,7 @@ public:
     //Knot constructor from an Extended Gauss Code list
     //knotLength is the length of extGauss 
     	//and must be determined prior to calling this constructor
-    Knot(vector<int>& extGauss);
+    Knot(vector<int> extGauss);
     
     //Knot constructor from string
     //This just creates an array and then calls constructfromGauss
@@ -54,7 +54,7 @@ public:
     
     //Constructs a knot object given an Extended Gauss code array
         //and its length
-    void constructFromGauss(vector<int>& extGauss);
+    void constructFromGauss(vector<int> extGauss);
     
     //Knot copy constructor
     Knot(const Knot &origKnot);
