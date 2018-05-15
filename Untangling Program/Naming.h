@@ -19,11 +19,11 @@
 
 #include "Utilities.h"
 
-void flip(int extGauss[], int knotLength);
+void flip(vector<int>& extGauss);
 
-void reNumber(int extGauss[], int knotLength);
+void reNumber(vector<int>& extGauss);
 
-void Name(int extGauss[], int knotLength);
+void Name(vector<int>& extGauss);
 
 
 #endif /* Naming_h */

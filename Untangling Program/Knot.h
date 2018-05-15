@@ -21,7 +21,7 @@
 
 #include "Naming.h"
 
-#define knotDebug 1
+#define knotDebug 0
 
 #if knotDebug
 #define kPrint(x) x
@@ -46,7 +46,7 @@ public:
     //Knot constructor from an Extended Gauss Code list
     //knotLength is the length of extGauss 
     	//and must be determined prior to calling this constructor
-    Knot(int extGauss[],int knotLength);
+    Knot(vector<int>& extGauss);
     
     //Knot constructor from string
     //This just creates an array and then calls constructfromGauss
@@ -54,10 +54,12 @@ public:
     
     //Constructs a knot object given an Extended Gauss code array
         //and its length
-    void constructFromGauss(int extGauss[], int knotLength);
+    void constructFromGauss(vector<int>& extGauss);
     
     //Knot copy constructor
     Knot(const Knot &origKnot);
+
+    static Knot move(Knot &origKnot);
     
     //Return the size of the knot.
     //If the knot has n crossing objects in it,
@@ -75,7 +77,7 @@ public:
     
     //Turns the knot into an array
     //The size of the new array can be determined from the knot obj
-    int * toArray() const;
+    vector<int> toVector() const;
     
     //Prints the knot as a readable list of numbers (Extended Gauss Code)
     void display(ostream & out) const;
@@ -146,16 +148,16 @@ private:
         
         //Pointer to the next crossing in the knot
             //with respect to order of tracing
-        Crossing* next;
+        shared_ptr<Crossing> next;
         
         //Pointer to the previous crossing in the knot,
             //with respect to order of tracing
-        Crossing* prev;
+        shared_ptr<Crossing> prev;
         
         //Pointer to the complementary crossing object
         //Two crossing objs with the same num will have neg ptrs
             //that aim at each other
-        Crossing* neg;
+        shared_ptr<Crossing> neg;
         
         //Default constructor
         Crossing(int numValue):
@@ -183,24 +185,24 @@ private:
         
         //Advance moves forward/backward along a crossing
         //Depending on direction (1 == next, -1 == prev)
-        Crossing* advance(int direction);
+        shared_ptr<Crossing> advance(int direction);
         
         //Recede is the opposite of advance
         //(1 == prev, -1 == next)
-        Crossing* recede(int direction);
+        shared_ptr<Crossing> recede(int direction);
         
         //TurnLeft/Right use handedness information
         //to take a current tracing direction (1 or -1)
         //and turns left/right with respect to the current crossing
         //the direction var is then updated
             //so tracing can continue correctly
-        Crossing* turnLeft(int & direction);
-        Crossing* turnRight(int & direction);
+        shared_ptr<Crossing> turnLeft(int & direction);
+        shared_ptr<Crossing> turnRight(int & direction);
         
         //DummyTurn functions do the same thing as regular turns
         //Except the direction var is not changed
-        Crossing* dummyTurnLeft(int direction);
-        Crossing* dummyTurnRight(int direction);
+        shared_ptr<Crossing> dummyTurnLeft(int direction);
+        shared_ptr<Crossing> dummyTurnRight(int direction);
         
         
         
@@ -208,19 +210,19 @@ private:
     
     //Utilities for finding a crossing object
         //based on matching num and sign
-    Crossing* find(int numToFind, int signOfNum);
-    Crossing* find(int numToFindWithSign);
+    shared_ptr<Crossing> find(int numToFind, int signOfNum);
+    shared_ptr<Crossing> find(int numToFindWithSign);
     
     //Gets the numerical index of a crossing within a knot
         //With respect to the start ptr
     //0-indexed
-    int findIndex(Crossing* crossingToFind);
+    int findIndex(shared_ptr<Crossing> crossingToFind);
     
     //Gets the length of a segment of crossings
     //Length of a to b:
         //[..., a, b, ...] = 2
         //[..., a, d, e, f, b, ...] = 5
-    int lengthOfSeg(Crossing* startCrossing, Crossing* endCrossing);
+    int lengthOfSeg(shared_ptr<Crossing> startCrossing, shared_ptr<Crossing> endCrossing);
     
     //Insert a crossing at a specified index. Not currently used
     void insert(int index, int numValue);
@@ -229,29 +231,27 @@ private:
     void erase(int index);
     
     //Removes a given crossing based on a pointer to it
-    void erase(Crossing* crossingA);
+    void erase(shared_ptr<Crossing> crossingA);
     
     //Returns true if a segment of a knot, denoted by start/endCrossing,
         //is a complete 1-tangle
     //That is - if all crossings located in the range are completed within the range
-    bool is1Tangle(Crossing* startCrossing, Crossing* endCrossing);
+    bool is1Tangle(shared_ptr<Crossing> startCrossing, shared_ptr<Crossing> endCrossing);
     
-    bool remove1TanglesHelper(Crossing*& startCrossing, Crossing*& endCrossing);
+    bool remove1TanglesHelper(shared_ptr<Crossing>& startCrossing, shared_ptr<Crossing>& endCrossing);
     
-    bool turnTrace(Crossing* strandPtr, int strandLength, int side, vector<string>& triedDiagrams);
+    bool turnTrace(int firstCrossingNum, int strandLength, int side, vector<string>& triedDiagrams);
     
-    bool turnTraceHelper(Crossing* currentCrossing, Crossing** strandArray, int strandLength, Crossing** pathArray, int& pathLength, int numIntersections, int direction);
+    bool turnTraceHelper(shared_ptr<Crossing> currentCrossing, vector<shared_ptr<Crossing>>& strandVector, vector<shared_ptr<Crossing>>& pathVector, int& pathLength, int numIntersections, int direction);
     
         
     //Locates all possible strands of given length
-    //crossingPtrArray is given as an empty array,
-        //and gets filled with starting crossings for each strand
-    void findStrandsOfLength(int length, int* crossingArray, int& arrayLength);
+    vector<int> findStrandsOfLength(int length);
     
     //Starting crossing of the knot
     //This is somewhat arbitrary
     //but we need one pointer to be our reference to the knot
-    Crossing* start;
+    shared_ptr<Crossing> start;
     
     //Size of the knot. A knot with n crossings will have mySize of n/2
     int mySize;
@@ -259,8 +259,8 @@ private:
     //Pointers for keeping track of detatched 1-tangles
     //Multiple 1-tangles will be connected end-to-end
     //And we use these ptrs to hold onto them
-    Crossing* startCrossing1Tangle;
-    Crossing* endCrossing1Tangle;
+    shared_ptr<Crossing> startCrossing1Tangle;
+    shared_ptr<Crossing> endCrossing1Tangle;
 
     
 };

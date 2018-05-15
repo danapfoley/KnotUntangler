@@ -26,15 +26,18 @@ int getSign(int num) {
 }
 
 //Turns a knot string into an array for further processing
-int* getInput(string knotString, int &knotLength) {
-    int * extGauss = new int[1];
+vector<int> getInput(string knotString) {
+    vector<int> extGauss; 
     //cout << "Enter knot to untangle: ";
     //getline(cin,knotString);
     
     
     if (knotString[0]=='[') {
         knotString.erase(0,1);
-        knotString.erase(knotString.length()-1,knotString.length());
+        
+    }
+    if (knotString[knotString.length() - 1] == ']') {
+        knotString.erase(knotString.length() - 1, 1);
     }
     
     for (int idx=0; idx<knotString.length(); idx++)
@@ -45,14 +48,7 @@ int* getInput(string knotString, int &knotLength) {
     
     int tempNum;
     while (knotStream >> tempNum) {
-        knotLength++;
-        int * tempList = new int[knotLength];
-        for (int idx=0; idx<knotLength-1; idx++) {
-            tempList[idx]=extGauss[idx];
-        }
-        tempList[knotLength-1]=tempNum;
-        delete [] extGauss;
-        extGauss=tempList;
+        extGauss.push_back(tempNum);
     }
     return extGauss;
 }
@@ -61,10 +57,10 @@ int* getInput(string knotString, int &knotLength) {
 
 //Find the index of an item in an array whose abs. value matches
     //the abs. value of the item to find
-int index_of_abs(int array[], int sizeOfArray, int item) {
+int index_of_abs(vector<int> &vec, int item) {
     
-    for (int i=0; i<sizeOfArray; i++) {
-        if (abs(array[i]) == abs(item)) {
+    for (int i=0; i<vec.size(); i++) {
+        if (abs(vec.at(i)) == abs(item)) {
             return i;
         }
     }
@@ -73,11 +69,10 @@ int index_of_abs(int array[], int sizeOfArray, int item) {
 }
 
 //Simple swap for two items in an array
-void swap(int array[], int idx1, int idx2) {
-    array[idx1] = array[idx1] + array[idx2];
-    array[idx2] = array[idx1] - array[idx2];
-    array[idx1] = array[idx1] - array[idx2];
-
+void swap(vector<int> vec, int idx1, int idx2) {
+    vec[idx1] = vec[idx1] + vec[idx2];
+    vec[idx2] = vec[idx1] - vec[idx2];
+    vec[idx1] = vec[idx1] - vec[idx2];
 }
 
 

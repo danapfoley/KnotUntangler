@@ -24,7 +24,7 @@
 #define Debug 1
 
 //Set to 1 to run basic operative tests
-#define doTests 0
+#define doTests 1
 
 #if doTests
 #define test(x) x
@@ -43,6 +43,7 @@
 void runAllTests();
 int rm1Test();
 int rm2Test();
+int copyTest();
 int conversionTest();
 int crossingTurnTest();
 int findStrandsOfLengthTest();
@@ -103,6 +104,8 @@ bool Untangle(Knot &knot) {
 int main() {
     
     dPrint(cout << "Debug mode ON" << endl;)
+
+    test(runAllTests();)
     
     //Default knot is Soulié knot in case file can't be read
     string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
@@ -167,8 +170,6 @@ int main() {
 //    int knotLength = knot.size()*2; //size returns the number of crossings, and we need twice that for arrays
 //    Name(finalKnotArray, knotLength);
 //    
-    
-    test(runAllTests();)
 
     cin.get();
     cin.get();
@@ -181,6 +182,7 @@ void runAllTests() {
     
     + rm1Test()
     + rm2Test()
+    + copyTest()
     + conversionTest()
     + crossingTurnTest()
     + findStrandsOfLengthTest()
@@ -223,6 +225,22 @@ int rm2Test() {
     
 }
 
+int copyTest() {
+    string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
+
+    Knot knot(knotString);
+
+    Knot knot2(knot);
+    Knot knot3 = knot;
+
+    if ((knot.toExtGaussString() != knot2.toExtGaussString()) || (knot.toExtGaussString() != knot3.toExtGaussString())) {
+        cout << "Copy test FAILED" << endl;
+        return -1;
+    }
+    cout << "Copy test passed" << endl;
+    return 0;
+}
+
 int conversionTest() {
     
     string knotString = "[1, -2, 3, -4, 5, -6, 7, 1, 8, -9, 10, -11, 12, -13, -14, -5, 15, 3, 17, -18, -9, 19, 20, 14, 21, 17, 22, 8, 23, -7, -2, -22, 18, 10, 24, -25, 26, 20, 6, -15, -4, -21, 27, 12, 28, 26, 29, -24, 11, -27, -13, 28, -25, -29, 19, 23]";
@@ -231,10 +249,12 @@ int conversionTest() {
     
     if (knot.toExtGaussString() != knotString) {
         cout << "Conversion to string FAILED" << endl;
+        cout << "Expected string: " + knotString << endl;
+        cout << "Received string: " + knot.toExtGaussString() << endl;
         return -1;
     }
     
-    Knot knot2(knot.toArray(), knot.size()*2);
+    Knot knot2(knot.toVector());
     if (knot2.toExtGaussString() != knotString) {
         cout << "Conversion to array FAILED" << endl << knot2.toExtGaussString();
         return -1;
@@ -275,8 +295,8 @@ int executeTM2Test() {
     
     if (knot.toGaussString() != expectedResultExt) {
         cout << "Executing tm2 FAILED" << endl;
-        cout << "Expected Result: " << endl << expectedResultExt << endl;
-        cout << "Actual Result: " << endl << knot.toExtGaussString() << endl;
+        cout << "Expected Result: " << endl << expectedResultExt << endl << "(length " << expectedResultExt.length() << ")" << endl;
+        cout << "Actual Result: " << endl << knot.toExtGaussString() << endl << "(length " << knot.toExtGaussString().length() << ")" << endl;
         return -1;
     }
     else {

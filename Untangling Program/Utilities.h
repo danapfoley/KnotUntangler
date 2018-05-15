@@ -22,27 +22,29 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <memory>
 #include <fstream>
+#include <algorithm>
 
 using namespace std;
 
 int getSign(int num);
 
-int* getInput(string knotString, int &knotLength);
+vector<int> getInput(string knotString);
 
 template <class type>
-int index_of(type array[], int sizeOfArray, type item) {
-    for (int i=0; i<sizeOfArray; i++) {
-        if (array[i] == item) {
+int index_of(vector<type> &arr, type item) {
+    for (int i=0; i<arr.size(); i++) {
+        if (arr[i] == item) {
             return i;
         }
     }
     return -1;
 }
 
-int index_of_abs(int * array, int sizeOfArray, int item);
+int index_of_abs(vector<int> &vec, int item);
 
-void swap(int * array, int idx1, int idx2);
+void swap(vector<int> &vec, int idx1, int idx2);
 
 template <typename vectorType>
 bool isInVector(vector<vectorType>& V, vectorType item) {
