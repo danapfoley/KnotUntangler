@@ -24,7 +24,7 @@
 #define Debug 0
 
 //Set to 1 to run basic operative tests
-#define doTests 0
+#define doTests 1
 
 #if doTests
 #define test(x) x
@@ -173,7 +173,7 @@ int main(int argc, char * argv[]) {
     
     Untangle(knot);
     
-    dPrint(cout << "Knot after being untangled: ") 
+    dPrint(cout << "Knot after being untangled: ";)
         
     cout << knot << endl;
     
