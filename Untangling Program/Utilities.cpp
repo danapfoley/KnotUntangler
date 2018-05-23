@@ -34,15 +34,12 @@ vector<int> getInput(string knotString) {
     
     if (knotString[0]=='[') {
         knotString.erase(0,1);
-        
     }
     if (knotString[knotString.length() - 1] == ']') {
         knotString.erase(knotString.length() - 1, 1);
     }
     
-    for (int idx=0; idx<knotString.length(); idx++)
-        if (knotString[idx]==',')
-            knotString.erase(idx, 1);
+    replace(knotString.begin(), knotString.end(), ',', ' ');
     
     stringstream knotStream(knotString);
     
@@ -69,7 +66,7 @@ int index_of_abs(vector<int> &vec, int item) {
 }
 
 //Simple swap for two items in an array
-void swap(vector<int> vec, int idx1, int idx2) {
+void swap(vector<int>& vec, int idx1, int idx2) {
     vec[idx1] = vec[idx1] + vec[idx2];
     vec[idx2] = vec[idx1] - vec[idx2];
     vec[idx1] = vec[idx1] - vec[idx2];
