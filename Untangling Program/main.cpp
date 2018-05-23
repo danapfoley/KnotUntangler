@@ -24,7 +24,7 @@
 #define Debug 0
 
 //Set to 1 to run basic operative tests
-#define doTests 1
+#define doTests 0
 
 #if doTests
 #define test(x) x
